@@ -104,12 +104,18 @@ class CapabilityRegistry:
             "agent_authorized": True,
             "no_deny_authority": True,
             "capability_verified": True,
+            "regression_safe": True,
         }
         missing_inputs: List[str] = []
 
         # 1. Capability status check
         is_verified = capability.get("status") == "verified"
         checks["capability_verified"] = is_verified
+
+        # Regression gate check (Block B)
+        reg_status = capability.get("regression_status", "passed")
+        if reg_status == "failed":
+            checks["regression_safe"] = False
 
         # 2. Agent authorized check
         if agent is None or getattr(agent, "authority_status", None) != "authorized":
@@ -168,6 +174,8 @@ class CapabilityRegistry:
         if not compatible:
             if not checks["capability_verified"]:
                 blocked_reason = "capability_not_verified"
+            elif not checks["regression_safe"]:
+                blocked_reason = "capability_regression_failed"
             elif not checks["agent_authorized"]:
                 blocked_reason = "agent_not_authorized"
             elif not checks["domain_match"]:

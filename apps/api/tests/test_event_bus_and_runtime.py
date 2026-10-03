@@ -110,7 +110,7 @@ def test_tool_registry():
     # Test emergency.read execution
     e = tool_registry.execute("emergency.read", zone="Zone 4")
     assert "ambulances" in str(e["available_resources"])
-    assert e["recommended_staging_area"] == "Guindy Race Course Ground (Staging Hub A)"
+    assert e["recommended_staging_area"] == "Silk Board Junction Ground (Staging Hub A)"
 
     # Test imagery.read execution
     img = tool_registry.execute("imagery.read", location="Zone 4 Saidapet")

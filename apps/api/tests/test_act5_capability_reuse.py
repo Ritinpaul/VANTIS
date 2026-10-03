@@ -281,3 +281,44 @@ def test_check_compatibility_deterministic_inputs_and_legacy():
     assert res_legacy["checks"]["agent_authorized"] is True
     assert len(res_legacy["missing_inputs"]) == 0
 
+
+def test_post_incidents_resolve_http_endpoint(db_session):
+    """TEST 9 — Verify POST /incidents/resolve HTTP API endpoint returns full ResolutionResult schema."""
+    from starlette.testclient import TestClient
+    from main import app
+    from core.database import get_db
+
+    app.dependency_overrides[get_db] = lambda: db_session
+    try:
+        client = TestClient(app)
+        payload = {
+            "incident_id": "INC-003-API",
+            "title": "Whitefield Ring Road Submersion",
+            "description": "Ambulance passage route submerged under standing water.",
+            "location": "Whitefield, Bengaluru Zone 6",
+            "severity": "critical",
+            "incident_type": "unknown",
+            "required_capability_id": "flood_passability",
+            "water_depth_cm": 54.0,
+            "flow_velocity_ms": 0.9,
+            "vehicle_type": "ambulance",
+            "road_condition": "arterial",
+        }
+        res = client.post("/incidents/resolve", json=payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert data["incident_id"] == "INC-003-API"
+        assert data["required_capability_id"] == "flood_passability"
+        assert data["resolution_mode"] == "REUSE"
+        assert data["forge_invoked"] is False
+        assert data["capability_reused"] is True
+        assert data["execution_success"] is True
+        assert data["reused_version"] is not None
+        assert data["agent_id"] == "passage-agent"
+        assert "passability_status" in data["agent_output"]
+        assert data["downstream_decision"] is not None
+        assert isinstance(data["execution_trace"], list)
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+
+

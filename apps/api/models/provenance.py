@@ -46,6 +46,21 @@ EVENT_TYPES = [
     # Act IV — Persistence
     "CAPABILITY_PERSISTED",
     "WORKFORCE_SNAPSHOT",
+    # Act V — Capability Lifecycle (reuse path)
+    "CAPABILITY_LOOKUP",           # Registry queried for incident's required capability
+    "CAPABILITY_COMPATIBLE",       # Compatibility gate passed — reuse approved
+    "CAPABILITY_INCOMPATIBLE",     # Compatibility gate failed — Forge required
+    "CAPABILITY_REUSED",           # Capability loaded from DB; Forge NOT invoked
+    "FORGE_BYPASSED",              # Explicit marker: forge_invoked=False confirmed
+    # Block B — Safety Gates
+    "REGRESSION_GATE_STARTED",     # Protected regression suite evaluation started
+    "REGRESSION_GATE_PASSED",      # Candidate passed all protected regression tests
+    "REGRESSION_GATE_FAILED",      # Candidate broke at least one protected test
+    "CAPABILITY_AUTHORIZED",       # Human-equivalent auth approved for deployment
+    "CAPABILITY_REJECTED",         # Auth denied after governance review
+    # Block C — Operational Outcome
+    "OPERATIONAL_OUTCOME_RECORDED",  # Downstream resolution result persisted
+    "DISTRIBUTION_SHIFT_DETECTED",   # Incident domain outside capability's contract
 ]
 
 

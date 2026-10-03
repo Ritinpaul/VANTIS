@@ -28,6 +28,13 @@ FLOOD_PASSABILITY_CAPABILITY = {
     "required_tools": ["road.read", "weather.read", "imagery.read"],
     "version": "1.0.0",
     "status": "verified",
+    "compatibility_contract": {
+        "required_inputs": ["water_depth_cm", "flow_velocity_ms", "vehicle_type"],
+        "allowed_domains": ["urban_road", "arterial"],
+        "required_tools": ["road.read", "weather.read", "imagery.read"],
+        "constraints": ["water_depth_cm must be numeric", "vehicle_type in known list"],
+    },
+    "regression_status": "passed",
     "created_from_incident": "INC-002",
 }
 
@@ -57,6 +64,14 @@ class Act4Orchestrator:
         try:
             logger.info(f"[Act4] Persisting capability '{data['id']}' into city registry.")
 
+            contract = data.get("compatibility_contract", {
+                "required_inputs": ["water_depth_cm", "flow_velocity_ms", "vehicle_type"],
+                "allowed_domains": ["urban_road", "arterial"],
+                "required_tools": ["road.read", "weather.read", "imagery.read"],
+                "constraints": ["water_depth_cm must be numeric", "vehicle_type in known list"],
+            })
+            reg_status = data.get("regression_status", "passed")
+
             # 1. Create or Update Capability
             cap = db.query(Capability).filter(Capability.id == data["id"]).first()
             if not cap:
@@ -69,6 +84,8 @@ class Act4Orchestrator:
                     required_tools=data["required_tools"],
                     version=data.get("version", "1.0.0"),
                     status="verified",
+                    compatibility_contract=contract,
+                    regression_status=reg_status,
                     created_from_incident=incident_id,
                     created_at=datetime.utcnow(),
                 )
@@ -77,6 +94,12 @@ class Act4Orchestrator:
                 cap.status = "verified"
                 cap.version = data.get("version", "1.0.0")
                 cap.created_from_incident = incident_id
+                if "compatibility_contract" in data:
+                    cap.compatibility_contract = data["compatibility_contract"]
+                elif not cap.compatibility_contract:
+                    cap.compatibility_contract = contract
+                if "regression_status" in data:
+                    cap.regression_status = data["regression_status"]
 
             db.commit()
             db.refresh(cap)

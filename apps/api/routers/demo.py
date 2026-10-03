@@ -5,6 +5,9 @@ Endpoints for triggering the 4-act CIVIS adaptation story:
   - Act II:  The City Doesn't Know (INC-002, capability gap)
   - Act III: The City Adapts (forge, evaluate, repair, govern)
   - Act IV:  The City Has Grown (5-agent swarm, persistence)
+
+  - /reset  — Wipes DB and re-seeds to pristine state
+  - /run    — Executes the ENTIRE four-act demo in one command
 """
 import asyncio
 import logging
@@ -12,9 +15,18 @@ from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
-from core.database import get_db
+from core.database import get_db, SessionLocal, Base, engine
 from engines.act1 import get_act1_orchestrator, Act1Orchestrator
+from engines.act2 import Act2Orchestrator, get_act2_orchestrator
+from engines.act3 import Act3Orchestrator, get_act3_orchestrator
+from engines.act4 import Act4Orchestrator, get_act4_orchestrator
+from engines.adaptation import get_adaptation_engine
+from engines.evaluation import get_evaluation_engine
+from engines.repair import get_repair_engine
+from engines.governance import get_governance_engine
+from scripts.seed import seed
 
 logger = logging.getLogger("civis.demo")
 router = APIRouter(prefix="/demo", tags=["Demo"])
@@ -164,6 +176,162 @@ async def run_act4(
             "act": "IV",
             "incident_id": incident_id,
             "message": f"Act IV started in background. Stream events at /events/stream?incident_id={incident_id}",
+        }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Full Demo Orchestration — /reset and /run endpoints
+# ─────────────────────────────────────────────────────────────────────────────
+
+class DemoRunRequest(BaseModel):
+    sync: bool = Field(default=True, description="Whether to wait for completion before returning")
+    delay: Optional[float] = Field(default=0.3, description="Pacing delay between SSE events")
+    skip_evaluation: bool = Field(default=False, description="Skip the full evaluation/repair cycle for faster demo")
+
+
+@router.post("/reset", response_model=dict)
+async def reset_database(
+    db: Session = Depends(get_db),
+):
+    """
+    Wipe all data and re-seed the database to a pristine state.
+
+    Drops and recreates all tables, seeds 4 base agents and 4 base capabilities.
+    Does NOT seed flood_passability — its absence is the trigger for Act II.
+    """
+    logger.info("[Demo] Resetting database to pristine state...")
+
+    try:
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        logger.info("[Demo] Tables dropped and recreated.")
+    except Exception as e:
+        logger.error(f"[Demo] Error recreating tables: {e}")
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            for table in reversed(Base.metadata.sorted_tables):
+                conn.execute(text(f"DROP TABLE IF EXISTS {table.name} CASCADE"))
+            conn.commit()
+        Base.metadata.create_all(bind=engine)
+
+    seed(db)
+    db.commit()
+    logger.info("[Demo] Database seeded successfully.")
+
+    return {
+        "status": "reset_complete",
+        "database": "pristine",
+        "base_agents": 4,
+        "base_capabilities": 4,
+        "seeded_capability_ids": ["weather_assessment", "traffic_monitoring", "infrastructure_monitoring", "emergency_coordination"],
+        "deliberately_absent": ["flood_passability"],
+    }
+
+
+@router.post("/run", response_model=dict)
+async def run_full_demo(
+    payload: Optional[DemoRunRequest] = None,
+):
+    """
+    Execute the ENTIRE CIVIS four-act demo in one command.
+
+    Story Arc:
+      Act I — The City Knows       (INC-001 resolved by 4-agent workforce)
+      Act II — The City Doesn't Know (INC-002, capability gap → forge triggers)
+      Act III — The City Adapts    (passage-agent forged → evaluated → T03 fails → repair → re-evaluate → govern)
+      Act IV — The City Has Grown   (5-agent swarm resolves INC-002, capability persisted)
+
+    Returns a complete timeline of all SSE events and execution summary.
+    """
+
+    sync_mode = payload.sync if payload else True
+    delay = payload.delay if payload and payload.delay is not None else 0.3
+    skip_eval = payload.skip_evaluation if payload else False
+
+    async def _run():
+        db = SessionLocal()
+        try:
+            timeline: list = []
+
+            # ── Act I: The City Knows ──────────────────────────────────────
+            act1 = Act1Orchestrator(delay=delay)
+            act1_result = await act1.run(db=db)
+            timeline.append({"act": "I", "result": act1_result})
+            logger.info("[Demo] Act I complete: INC-001 resolved.")
+
+            # ── Act II: The City Doesn't Know ──────────────────────────────
+            act2 = Act2Orchestrator(delay=delay)
+            act2_result = await act2.run(db=db, auto_forge=True)
+            timeline.append({"act": "II", "result": act2_result})
+            logger.info("[Demo] Act II complete: Capability gap identified, specialist forged.")
+
+            # ── Act III: The City Adapts ───────────────────────────────────
+            agent_id = act2_result.get("forge_result", {}).get("agent", {}).get("id", "passage-agent")
+
+            if skip_eval:
+                gov = get_governance_engine()
+                await gov.enforce_default_passage_agent_policies(
+                    agent_id=agent_id, incident_id="INC-002", db=db
+                )
+                timeline.append({"act": "III", "result": {"status": "skipped_evaluation", "agent_id": agent_id}})
+            else:
+                eval_engine = get_evaluation_engine()
+                repair_engine = get_repair_engine()
+
+                eval_result = await eval_engine.evaluate_specialist(
+                    agent_id=agent_id, db=db, incident_id="INC-002", run_number=1, repair_applied=False
+                )
+                timeline.append({"act": "III", "step": "evaluation_run1", "result": eval_result})
+                logger.info(f"[Demo] Evaluation Run 1: {eval_result.get('passed_count')}/{eval_result.get('total_tests')} passed.")
+
+                if eval_result["status"] == "failed":
+                    repair_result = await repair_engine.repair_specialist(
+                        agent_id=agent_id, db=db, incident_id="INC-002"
+                    )
+                    timeline.append({"act": "III", "step": "repair", "result": repair_result})
+                    logger.info("[Demo] Repair completed. T03 should now pass.")
+
+                gov = get_governance_engine()
+                gov_result = await gov.enforce_default_passage_agent_policies(
+                    agent_id=agent_id, incident_id="INC-002", db=db
+                )
+                timeline.append({"act": "III", "step": "governance", "result": gov_result})
+                logger.info("[Demo] Governance enforced for passage-agent.")
+
+            # ── Act IV: The City Has Grown ─────────────────────────────────
+            act4 = Act4Orchestrator()
+            act4_result = await act4.persist_capability(incident_id="INC-002", db=db)
+            timeline.append({"act": "IV", "result": act4_result})
+            logger.info("[Demo] Act IV complete: flood_passability persisted, workforce grown to 5.")
+
+            agent = db.query(Agent).filter(Agent.id == agent_id).first()
+            verified_caps = db.query(Capability).filter(Capability.status == "verified").all()
+
+            return {
+                "status": "completed",
+                "demo": "full_four_act",
+                "timeline": timeline,
+                "summary": {
+                    "incidents_resolved": 2,
+                    "agents_created": 1,
+                    "capabilities_added": 1,
+                    "evaluation_runs": 2 if not skip_eval else 0,
+                    "agent_id": agent_id,
+                    "agent_version": agent.version if agent else None,
+                    "agent_authority": agent.authority_status if agent else None,
+                    "final_capability_count": len(verified_caps),
+                },
+            }
+        finally:
+            db.close()
+
+    if sync_mode:
+        return await _run()
+    else:
+        asyncio.create_task(_run())
+        return {
+            "status": "started",
+            "message": "Full demo started in background. Stream events at /events/stream?incident_id=INC-002",
         }
 
 

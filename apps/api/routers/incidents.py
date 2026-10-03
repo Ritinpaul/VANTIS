@@ -33,6 +33,21 @@ class IncidentUpdate(BaseModel):
     evidence: Optional[dict] = None
 
 
+class IncidentResolveRequest(BaseModel):
+    title: str
+    description: str
+    location: str
+    severity: str = "high"
+    incident_type: str = "unknown"
+    required_capability_id: str
+    incident_id: Optional[str] = None
+    # Structured incident inputs for compatibility check
+    water_depth_cm: Optional[float] = None
+    flow_velocity_ms: Optional[float] = None
+    vehicle_type: Optional[str] = None
+    road_condition: Optional[str] = None
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 @router.get("", response_model=List[dict])
 def list_incidents(
@@ -207,3 +222,24 @@ def get_incident_timeline(
         .all()
     )
     return [e.to_dict() for e in events]
+
+
+@router.post("/resolve", response_model=dict)
+async def resolve_incident(
+    payload: IncidentResolveRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Intelligent incident resolution endpoint: checks registry first,
+    reuses verified capability (Act V) or forges new specialist as needed.
+    """
+    from engines.incident_resolver import get_incident_resolver
+    resolver = get_incident_resolver()
+    incident_dict = payload.model_dump()
+    if payload.incident_id:
+        incident_dict["id"] = payload.incident_id
+    return await resolver.resolve(
+        incident=incident_dict,
+        required_capability_id=payload.required_capability_id,
+        db=db,
+    )

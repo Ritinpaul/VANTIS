@@ -66,6 +66,7 @@ class CapabilityRegistry:
                     .filter(
                         Evaluation.agent_id == agent.id,
                         Evaluation.status == "passed",
+                        Evaluation.run_number >= 1,
                     )
                     .first()
                 )

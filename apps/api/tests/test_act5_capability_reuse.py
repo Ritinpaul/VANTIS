@@ -220,3 +220,64 @@ async def test_distribution_shift_detected(db_session):
     assert eligibility["eligible"] is False
     assert eligibility["compatibility"]["compatible"] is False
     assert eligibility["compatibility"]["checks"]["domain_match"] is False
+
+
+def test_check_compatibility_deterministic_inputs_and_legacy():
+    """TEST 8 — Direct unit test on check_compatibility with satisfied inputs, missing inputs, and legacy contract."""
+    registry = get_capability_registry()
+    agent = Agent(
+        id="test-agent",
+        name="Test Agent",
+        authority_status="authorized",
+        status="active",
+        capability_ids=["test_cap"],
+    )
+
+    cap_with_contract = {
+        "id": "test_cap",
+        "status": "verified",
+        "compatibility_contract": {
+            "required_inputs": ["water_depth_cm", "flow_velocity_ms", "vehicle_type"],
+            "allowed_domains": ["urban_road", "arterial"],
+            "required_tools": ["road.read"],
+        },
+    }
+
+    # Case 1: Satisfied inputs and domain
+    incident_valid = {
+        "water_depth_cm": 45,
+        "flow_velocity_ms": 1.2,
+        "vehicle_type": "standard_car",
+        "domain": "urban_road",
+    }
+    res_valid = registry.check_compatibility(cap_with_contract, incident_valid, agent)
+    assert res_valid["compatible"] is True
+    assert res_valid["checks"]["inputs_satisfied"] is True
+    assert res_valid["checks"]["domain_match"] is True
+    assert len(res_valid["missing_inputs"]) == 0
+    assert res_valid["blocked_reason"] is None
+
+    # Case 2: Missing inputs (explicit list returned)
+    incident_missing = {
+        "water_depth_cm": 45,
+        "domain": "urban_road",
+    }
+    res_missing = registry.check_compatibility(cap_with_contract, incident_missing, agent)
+    assert res_missing["compatible"] is False
+    assert res_missing["checks"]["inputs_satisfied"] is False
+    assert "flow_velocity_ms" in res_missing["missing_inputs"]
+    assert "vehicle_type" in res_missing["missing_inputs"]
+    assert "missing_inputs" in (res_missing["blocked_reason"] or "")
+
+    # Case 3: Legacy capability (compatibility_contract is None)
+    legacy_cap = {
+        "id": "legacy_cap",
+        "status": "verified",
+        "compatibility_contract": None,
+    }
+    res_legacy = registry.check_compatibility(legacy_cap, {}, agent)
+    assert res_legacy["compatible"] is True
+    assert res_legacy["checks"]["capability_verified"] is True
+    assert res_legacy["checks"]["agent_authorized"] is True
+    assert len(res_legacy["missing_inputs"]) == 0
+

@@ -42,20 +42,49 @@ class Act5Orchestrator:
         self.bus = bus or get_event_bus()
 
     def _extract_downstream_decision(self, agent_output: Optional[Dict[str, Any]]) -> str:
-        """Map passability status to concrete downstream operational decision."""
+        """
+        Map agent output and passability/operational status to concrete downstream operational decisions.
+        Supports multi-hazard decision routing (Outcome layer - Phase 16).
+        """
         if not agent_output:
             return "route_unassessed"
-        status = str(agent_output.get("passability_status", "")).upper()
+
+        # Direct explicit decision override if provided
+        for key in ("operational_decision", "downstream_decision", "decision"):
+            val = agent_output.get(key)
+            if val and isinstance(val, str):
+                return val.lower().strip()
+
+        status = str(agent_output.get("passability_status") or agent_output.get("status") or "").upper().strip()
+        risk = str(agent_output.get("risk_level") or agent_output.get("severity") or "").upper().strip()
+
         if status == "PASSABLE":
+            if risk in ("HIGH", "CRITICAL"):
+                return "ambulance_route_caution_high_clearance_only"
             return "ambulance_route_approved"
-        elif status == "IMPASSABLE":
+        elif status in ("IMPASSABLE", "BLOCKED", "CLOSED"):
             return "route_closed_detour_recommended"
         elif status == "UNKNOWN":
             return "human_reconnaissance_required"
-        elif status == "ESCALATE":
+        elif status in ("ESCALATE", "CRITICAL"):
             return "supervisor_escalation_required"
-        else:
-            return "operational_assessment_logged"
+        elif status in ("CAUTION", "RESTRICTED"):
+            return "cautionary_access_high_clearance_only"
+        elif status in ("CLEAR", "NORMAL", "OPEN"):
+            return "route_clear_normal_flow"
+
+        # Check recommendation text
+        rec = str(agent_output.get("recommendation", "")).lower()
+        if "detour" in rec or "close" in rec or "impassable" in rec:
+            return "route_closed_detour_recommended"
+        if "passable" in rec or "approved" in rec or "clear" in rec:
+            return "ambulance_route_approved"
+        if "recon" in rec or "inspect" in rec or "unknown" in rec:
+            return "human_reconnaissance_required"
+        if "escalat" in rec or "emergency" in rec:
+            return "supervisor_escalation_required"
+
+        return "operational_assessment_logged"
 
     def _load_runtime_from_db(self, agent: Agent, db: Session) -> GenericAgentRuntime:
         """
@@ -89,7 +118,7 @@ class Act5Orchestrator:
         # 1. Emit CAPABILITY_LOOKUP
         await self.bus.publish_provenance(
             event_type="CAPABILITY_LOOKUP",
-            actor="civis-act5",
+            actor="vantis-act5",
             message=f"Querying city registry for capability '{required_capability_id}' for incident {inc_id}.",
             payload={
                 "incident_id": inc_id,
@@ -110,15 +139,39 @@ class Act5Orchestrator:
             t_fail = time.perf_counter()
             elapsed_ms = (t_fail - t0) * 1000
 
+            compat_report = eligibility.get("compatibility") or {}
+            blocked_reason = eligibility.get("blocked_reason")
+
+            # Emit DISTRIBUTION_SHIFT_DETECTED if domain mismatch
+            if blocked_reason == "distribution_shift_detected" or not compat_report.get("checks", {}).get("domain_match", True):
+                await self.bus.publish_provenance(
+                    event_type="DISTRIBUTION_SHIFT_DETECTED",
+                    actor="vantis-act5",
+                    message=(
+                        f"Distribution shift detected for incident {inc_id} on capability '{required_capability_id}'. "
+                        f"Incident domain is outside capability's compatibility contract."
+                    ),
+                    payload={
+                        "incident_id": inc_id,
+                        "required_capability_id": required_capability_id,
+                        "road_condition": incident.get("road_condition") or incident.get("domain"),
+                        "allowed_domains": compat_report.get("allowed_domains"),
+                        "blocked_reason": blocked_reason,
+                    },
+                    incident_id=inc_id,
+                    db=db,
+                )
+
             # Emit CAPABILITY_INCOMPATIBLE
             await self.bus.publish_provenance(
                 event_type="CAPABILITY_INCOMPATIBLE",
-                actor="civis-act5",
-                message=f"Capability '{required_capability_id}' reuse ineligible: {eligibility.get('blocked_reason')}. Forge required.",
+                actor="vantis-act5",
+                message=f"Capability '{required_capability_id}' reuse ineligible: {blocked_reason}. Forge required.",
                 payload={
                     "incident_id": inc_id,
                     "required_capability_id": required_capability_id,
-                    "eligibility": eligibility,
+                    "blocked_reason": blocked_reason,
+                    "compatibility": compat_report,
                 },
                 incident_id=inc_id,
                 db=db,
@@ -148,7 +201,7 @@ class Act5Orchestrator:
 
         await self.bus.publish_provenance(
             event_type="CAPABILITY_COMPATIBLE",
-            actor="civis-act5",
+            actor="vantis-act5",
             message=(
                 f"Capability '{required_capability_id}' v{cap_dict.get('version', '1.0.0')} "
                 f"and agent '{agent.id}' compatible. Forge bypassed."
@@ -206,7 +259,7 @@ class Act5Orchestrator:
 
         await self.bus.publish_provenance(
             event_type="FORGE_BYPASSED",
-            actor="civis-system",
+            actor="vantis-system",
             message="Zero-forge capability reuse confirmed. Forge was not invoked (forge_invoked=False).",
             payload={
                 "capability_id": required_capability_id,

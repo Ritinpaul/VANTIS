@@ -101,6 +101,7 @@ class CapabilityRegistry:
         checks = {
             "inputs_satisfied": True,
             "domain_match": True,
+            "constraints_satisfied": True,
             "agent_authorized": True,
             "no_deny_authority": True,
             "capability_verified": True,
@@ -167,6 +168,17 @@ class CapabilityRegistry:
                 if domain is not None and domain not in allowed_domains:
                     checks["domain_match"] = False
 
+            # Check constraints
+            constraints = contract.get("constraints", [])
+            for c in constraints:
+                c_str = str(c).lower()
+                if "numeric" in c_str:
+                    for field in ("water_depth_cm", "flow_velocity_ms"):
+                        if field in c_str:
+                            val = incident.get(field)
+                            if val is not None and not isinstance(val, (int, float)):
+                                checks["constraints_satisfied"] = False
+
         compatible = all(checks.values())
 
         # Determine blocked reason
@@ -179,9 +191,11 @@ class CapabilityRegistry:
             elif not checks["agent_authorized"]:
                 blocked_reason = "agent_not_authorized"
             elif not checks["domain_match"]:
-                blocked_reason = "domain_mismatch_distribution_shift"
+                blocked_reason = "distribution_shift_detected"
             elif not checks["inputs_satisfied"]:
                 blocked_reason = f"missing_inputs: {', '.join(missing_inputs)}"
+            elif not checks["constraints_satisfied"]:
+                blocked_reason = "input_constraints_violated"
             elif not checks["no_deny_authority"]:
                 blocked_reason = "required_tool_denied_by_governance"
             else:

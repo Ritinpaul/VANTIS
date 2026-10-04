@@ -5,7 +5,7 @@ import { DemoProvider } from '@/lib/store';
 import { AppShell } from '@/components/shell/AppShell';
 
 export const metadata: Metadata = {
-  title: 'CIVIS — Autonomous Multi-Agent Crisis Command Center',
+  title: 'VANTIS — Autonomous Multi-Agent Crisis Command Center',
   description:
     'Real-time civic defense and autonomous multi-agent adaptation engine for city crisis response with Gemini multimodal perception and GovernOS safety enforcement.',
   icons: {

@@ -379,7 +379,7 @@ export function WorkforceGrowth() {
             )}
           </h1>
           <p className="text-xs md:text-sm text-[#8E8EA0] mt-1 max-w-3xl leading-relaxed">
-            Every resolved crisis permanently expands the municipal capability registry. When a capability gap is encountered, CIVIS discovers, audits via GovernOS, and registers verified specialists into the city mesh without requiring human code re-deployment.
+            Every resolved crisis permanently expands the municipal capability registry. When a capability gap is encountered, VANTIS discovers, audits via GovernOS, and registers verified specialists into the city mesh without requiring human code re-deployment.
           </p>
         </div>
 
@@ -765,7 +765,7 @@ export function WorkforceGrowth() {
           </div>
 
           <p className="text-xs text-[#8E8EA0] leading-relaxed">
-            The civic fleet operates with 4 certified core agents and 12 baseline capabilities. During active crises requiring specialized actuation or hydrological calculus, CIVIS automatically triggers candidate ingestion and policy sandboxing to expand the municipal capability registry.
+            The civic fleet operates with 4 certified core agents and 12 baseline capabilities. During active crises requiring specialized actuation or hydrological calculus, VANTIS automatically triggers candidate ingestion and policy sandboxing to expand the municipal capability registry.
           </p>
         </div>
       )}

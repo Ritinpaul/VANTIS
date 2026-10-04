@@ -137,5 +137,6 @@ export interface DemoState {
   authorityPolicies: AuthorityPolicy[];
   capabilityModalOpen: boolean;
   liveDenialActive: boolean;
+  isSseConnected?: boolean;
 }
 

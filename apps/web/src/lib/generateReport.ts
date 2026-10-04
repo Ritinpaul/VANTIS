@@ -83,10 +83,10 @@ const SCENARIO_DEFAULTS = {
       { agency: 'BBMP Drainage Command', unit: 'SLUICE-GATE-04', task: 'Spillway crest venting 60% open to avert residential backflow', status: 'OPERATIONAL' },
     ],
     signalsRegistry: [
-      { id: 'CIVIS-TEL-001', source: 'TELEMETRY', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Bellandur Spillway Pier 4', resources: 'SWD-Pump-01' },
-      { id: 'CIVIS-CAM-018', source: 'VISION', priority: 'HIGH', disposition: 'TRIAGED', location: 'ORR Cam-18 Feed Corridor', resources: 'BTP-East-12' },
-      { id: 'CIVIS-SMS-009', source: 'CITIZEN SOS', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'HAL Bypass Intersection', resources: 'ALS-4x4-AMB' },
-      { id: 'CIVIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Passage Specialist' },
+      { id: 'VANTIS-TEL-001', source: 'TELEMETRY', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Bellandur Spillway Pier 4', resources: 'SWD-Pump-01' },
+      { id: 'VANTIS-CAM-018', source: 'VISION', priority: 'HIGH', disposition: 'TRIAGED', location: 'ORR Cam-18 Feed Corridor', resources: 'BTP-East-12' },
+      { id: 'VANTIS-SMS-009', source: 'CITIZEN SOS', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'HAL Bypass Intersection', resources: 'ALS-4x4-AMB' },
+      { id: 'VANTIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Passage Specialist' },
     ],
     timeline: [
       { time: '00:01.20', source: 'TELEMETRY', event: 'Spillway depth crest reached 68cm (+4.2cm/min). Exceeds civilian sedan clearance.' },
@@ -124,10 +124,10 @@ const SCENARIO_DEFAULTS = {
       { agency: 'Emergency Medical Services', unit: 'EMS-Corridor-1', task: 'St. John corridor green-light override activated', status: 'CLEARED' },
     ],
     signalsRegistry: [
-      { id: 'CIVIS-TEL-022', source: 'TELEMETRY', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Silk Board Flyover Interchange', resources: 'BTP-South-04' },
-      { id: 'CIVIS-CAM-004', source: 'VISION', priority: 'HIGH', disposition: 'TRIAGED', location: 'Hosur Road Ingress Cam-04', resources: 'BMTC-Ctrl-09' },
-      { id: 'CIVIS-SMS-031', source: 'CITIZEN SOS', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'BTM Feeder Corridor', resources: 'EMS-Corridor-1' },
-      { id: 'CIVIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Traffic Coordinator' },
+      { id: 'VANTIS-TEL-022', source: 'TELEMETRY', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Silk Board Flyover Interchange', resources: 'BTP-South-04' },
+      { id: 'VANTIS-CAM-004', source: 'VISION', priority: 'HIGH', disposition: 'TRIAGED', location: 'Hosur Road Ingress Cam-04', resources: 'BMTC-Ctrl-09' },
+      { id: 'VANTIS-SMS-031', source: 'CITIZEN SOS', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'BTM Feeder Corridor', resources: 'EMS-Corridor-1' },
+      { id: 'VANTIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Traffic Coordinator' },
     ],
     timeline: [
       { time: '00:01.10', source: 'VISION', event: 'Cam-04 detected 4-way arterial deadlock. 380 vehicles stalled across 4 quadrants.' },
@@ -165,10 +165,10 @@ const SCENARIO_DEFAULTS = {
       { agency: 'Bengaluru Traffic Police', unit: 'BTP-North-02', task: 'Divert low-clearance sedans to Kodigehalli feeder arterial', status: 'DIVERTING' },
     ],
     signalsRegistry: [
-      { id: 'CIVIS-UAV-003', source: 'AERIAL UAV', priority: 'HIGH', disposition: 'TRIAGED', location: 'Hebbal Flyover Staging Hub B', resources: 'NHAI-Express-08' },
-      { id: 'CIVIS-CAM-007', source: 'VISION', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Airport Expressway Cam-07', resources: 'HBL-Sluice-Ctrl' },
-      { id: 'CIVIS-SMS-052', source: 'CITIZEN SOS', priority: 'HIGH', disposition: 'DISPATCHED', location: 'Yelahanka Feeder Arterial', resources: 'BTP-North-02' },
-      { id: 'CIVIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Basin Vent Optimizer' },
+      { id: 'VANTIS-UAV-003', source: 'AERIAL UAV', priority: 'HIGH', disposition: 'TRIAGED', location: 'Hebbal Flyover Staging Hub B', resources: 'NHAI-Express-08' },
+      { id: 'VANTIS-CAM-007', source: 'VISION', priority: 'CRITICAL', disposition: 'DISPATCHED', location: 'Airport Expressway Cam-07', resources: 'HBL-Sluice-Ctrl' },
+      { id: 'VANTIS-SMS-052', source: 'CITIZEN SOS', priority: 'HIGH', disposition: 'DISPATCHED', location: 'Yelahanka Feeder Arterial', resources: 'BTP-North-02' },
+      { id: 'VANTIS-SPEC-005', source: 'FORGE AGENT', priority: 'VERIFIED', disposition: 'SYNCHRONIZED', location: 'A2A Transit Mesh Layer', resources: 'Basin Vent Optimizer' },
     ],
     timeline: [
       { time: '00:01.30', source: 'TELEMETRY', event: 'Hebbal underpass sensor registered 54cm surge. Central sluice at 142% capacity.' },
@@ -247,7 +247,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(colCyan[0], colCyan[1], colCyan[2]);
-  doc.text('BENGALURU MUNICIPAL CRISIS COMMAND CELL // PROJECT CIVIS', margin + 10, y + 2);
+  doc.text('BENGALURU MUNICIPAL CRISIS COMMAND CELL // PROJECT VANTIS', margin + 10, y + 2);
 
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(colAmber[0], colAmber[1], colAmber[2]);
@@ -462,7 +462,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(colDim[0], colDim[1], colDim[2]);
-  doc.text('PROJECT CIVIS · KARNATAKA STATE DISASTER MANAGEMENT AUTHORITY (KSDMA) INTERFACE', margin, pageHeight - margin + 1);
+  doc.text('PROJECT VANTIS · KARNATAKA STATE DISASTER MANAGEMENT AUTHORITY (KSDMA) INTERFACE', margin, pageHeight - margin + 1);
   doc.text('PAGE 1 OF 3 · OFFICIAL USE ONLY', margin + contentWidth, pageHeight - margin + 1, { align: 'right' });
 
   // ==========================================
@@ -621,7 +621,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(colDim[0], colDim[1], colDim[2]);
-  doc.text('PROJECT CIVIS · KARNATAKA STATE DISASTER MANAGEMENT AUTHORITY (KSDMA) INTERFACE', margin, pageHeight - margin + 1);
+  doc.text('PROJECT VANTIS · KARNATAKA STATE DISASTER MANAGEMENT AUTHORITY (KSDMA) INTERFACE', margin, pageHeight - margin + 1);
   doc.text('PAGE 2 OF 3 · OFFICIAL USE ONLY', margin + contentWidth, pageHeight - margin + 1, { align: 'right' });
 
   // ==========================================
@@ -760,7 +760,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.text('COMMANDER AUTH:', margin + 4, pzy);
   doc.setFont('courier', 'bold');
   doc.setTextColor(colEmerald[0], colEmerald[1], colEmerald[2]);
-  doc.text('CONFIRMED BY CIVIS MISSION COMMANDER · CRYPTOGRAPHIC TOKEN SEALED', margin + 42, pzy);
+  doc.text('CONFIRMED BY VANTIS MISSION COMMANDER · CRYPTOGRAPHIC TOKEN SEALED', margin + 42, pzy);
 
   // SECTION 9: EVENT DISPATCH & SIGNAL REGISTRY (Aegis-Inspired Tabular Registry)
   y += 30;
@@ -840,7 +840,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(colWhite[0], colWhite[1], colWhite[2]);
-  doc.text('OFFICIAL SIGN-OFF: BBMP DISASTER MANAGEMENT & CIVIS OVERSIGHT BOARD', margin, y);
+  doc.text('OFFICIAL SIGN-OFF: BBMP DISASTER MANAGEMENT & VANTIS OVERSIGHT BOARD', margin, y);
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(colEmerald[0], colEmerald[1], colEmerald[2]);
@@ -866,6 +866,6 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.text('PAGE 3 OF 3 · OFFICIAL USE ONLY', margin + contentWidth, pageHeight - margin + 1, { align: 'right' });
 
   // Download 3-Page PDF
-  const filename = `CIVIS_SitRep_${data.incidentId}_Official.pdf`;
+  const filename = `VANTIS_SitRep_${data.incidentId}_Official.pdf`;
   doc.save(filename);
 }

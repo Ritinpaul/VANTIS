@@ -351,11 +351,11 @@ export function IncidentVisionModal({ isOpen, onClose, onOpenReport }: IncidentV
           <div className="flex items-center gap-2.5">
             <img
               src="/civis-logo.png"
-              alt="CIVIS"
+              alt="VANTIS"
               className="w-4 h-4 object-contain drop-shadow-[0_0_6px_rgba(34,211,238,0.7)]"
             />
             <span className="font-mono text-white/90">
-              CIVIS OPERATIONAL DISPATCH // MULTIMODAL PERCEPTION // GEMINI 2.5 FLASH
+              VANTIS OPERATIONAL DISPATCH // MULTIMODAL PERCEPTION // GEMINI 2.5 FLASH
             </span>
           </div>
           <div className="flex items-center gap-4">

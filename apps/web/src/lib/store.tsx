@@ -10,6 +10,8 @@ import {
   AuthorityPolicy,
   ScenarioId,
   ScenarioInfo,
+  EventSource as EventSourceType,
+  EventStatus,
 } from '@/types/demo';
 import {
   BELLANDUR_ROAD_DETOUR,
@@ -362,6 +364,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [liveDenialActive, setLiveDenialActive] = useState(false);
+  const [isSseConnected, setIsSseConnected] = useState(false);
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -732,8 +735,148 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
       });
       setEvents(SCENARIO_SEED_EVENTS[scenarioId] || []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live VANTIS SSE Stream Integration
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const streamUrl = `${apiUrl}/events/stream`;
+
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+
+    const connectSSE = () => {
+      try {
+        eventSource = new EventSource(streamUrl);
+
+        eventSource.onopen = () => {
+          setIsSseConnected(true);
+        };
+
+        eventSource.onerror = () => {
+          setIsSseConnected(false);
+          eventSource?.close();
+          reconnectTimeout = setTimeout(connectSSE, 5000);
+        };
+
+        const handleBackendEvent = (e: MessageEvent) => {
+          try {
+            if (!e.data) return;
+            const data = JSON.parse(e.data);
+            const eventType: string = data.event_type || e.type || 'MESSAGE';
+            if (eventType === 'CONNECTED') {
+              setIsSseConnected(true);
+              return;
+            }
+
+            let source: EventSourceType = 'ORCHESTRATOR';
+            if (eventType.includes('GEMINI') || eventType.includes('VISION')) source = 'GEMINI';
+            else if (eventType.includes('GOVERNOS') || eventType.includes('AUTHORITY') || eventType.includes('POLICY') || eventType.includes('REPAIR')) source = 'GOVERNOS';
+            else if (eventType.includes('EVALUATION') || eventType.includes('TEST') || eventType.includes('VERIFIED') || eventType.includes('REGRESSION')) source = 'TRUST';
+            else if (eventType.includes('WORKFORCE')) source = 'WORKFORCE';
+            else if (eventType.includes('RESOLVED') || eventType.includes('CLOSED')) source = 'RESULT';
+            else if (eventType.includes('A2A') || eventType.includes('DISPATCH') || eventType.includes('REUSE')) source = 'A2A';
+
+            let status: EventStatus = 'info';
+            if (eventType.includes('FAILED') || eventType.includes('VIOLATION') || eventType.includes('DENIED') || eventType.includes('BLOCKED')) status = 'error';
+            else if (eventType.includes('GAP') || eventType.includes('WARNING') || eventType.includes('ANOMALY')) status = 'warning';
+            else if (eventType.includes('PASSED') || eventType.includes('VERIFIED') || eventType.includes('EXPANDED') || eventType.includes('RESOLVED') || eventType.includes('AUTHORIZED') || eventType.includes('REUSED')) status = 'success';
+
+            const payloadStr = typeof data.payload === 'object' ? JSON.stringify(data.payload) : (data.payload || '');
+            const detailMsg = data.payload?.detail || data.payload?.message || payloadStr || 'Live event from VANTIS engine.';
+
+            addEvent({
+              source,
+              title: data.message || eventType.replace(/_/g, ' '),
+              detail: detailMsg.length > 220 ? detailMsg.slice(0, 217) + '...' : detailMsg,
+              status,
+              metadata: data.payload,
+            });
+
+            if (eventType === 'INCIDENT_RECEIVED') {
+              advanceToStage('incident_detected');
+              if (data.payload && data.payload.id) {
+                setIncident((prev) => ({
+                  ...prev,
+                  id: data.payload.id || prev.id,
+                  title: data.payload.title || prev.title,
+                  description: data.payload.description || prev.description,
+                  severity: data.payload.severity || prev.severity,
+                  location: data.payload.location || prev.location,
+                }));
+              }
+            } else if (eventType === 'CAPABILITY_GAP') {
+              advanceToStage('capability_gap');
+            } else if (eventType === 'EVALUATION_STARTED' || eventType === 'EVALUATION_STEP') {
+              advanceToStage('evaluating');
+            } else if (eventType === 'EVALUATION_FAILED') {
+              advanceToStage('evaluation_failed');
+            } else if (eventType === 'REPAIR_PROPOSED' || eventType === 'REPAIR_APPLIED') {
+              advanceToStage('repairing');
+            } else if (eventType === 'REGRESSION_GATE_PASSED' || eventType === 'ALL_TESTS_PASSED' || eventType === 'CAPABILITY_VERIFIED') {
+              advanceToStage('verified');
+            } else if (eventType === 'CAPABILITY_AUTHORIZED' || eventType === 'WORKFORCE_EXPANDED') {
+              advanceToStage('joining_workforce');
+            } else if (eventType === 'INCIDENT_RESOLVED' || eventType === 'INCIDENT_CLOSED' || eventType === 'CAPABILITY_REUSED') {
+              advanceToStage('resolved');
+            } else if (eventType === 'POLICY_VIOLATION' || eventType === 'AUTHORITY_DENIED') {
+              triggerLiveDenial();
+            }
+          } catch {
+            // keepalive or non-json message
+          }
+        };
+
+        const eventTypes = [
+          'CONNECTED',
+          'INCIDENT_RECEIVED',
+          'GEMINI_UNDERSTANDING',
+          'MULTIMODAL_INGEST',
+          'CAPABILITY_DECOMPOSITION',
+          'CAPABILITY_GAP',
+          'ADAPTATION_STARTED',
+          'EVALUATION_STARTED',
+          'EVALUATION_STEP',
+          'EVALUATION_FAILED',
+          'REPAIR_PROPOSED',
+          'REPAIR_APPLIED',
+          'REGRESSION_TEST_STARTED',
+          'REGRESSION_GATE_PASSED',
+          'REGRESSION_GATE_FAILED',
+          'CAPABILITY_VERIFIED',
+          'ALL_TESTS_PASSED',
+          'AUTHORITY_EVALUATION',
+          'CAPABILITY_AUTHORIZED',
+          'WORKFORCE_EXPANDED',
+          'INCIDENT_RESOLVED',
+          'INCIDENT_CLOSED',
+          'CAPABILITY_REUSED',
+          'POLICY_VIOLATION',
+          'AUTHORITY_DENIED',
+          'ACT5_DISPATCH_STARTED',
+          'MESSAGE',
+        ];
+
+        eventTypes.forEach((evt) => {
+          eventSource?.addEventListener(evt, handleBackendEvent as EventListener);
+        });
+        eventSource.onmessage = handleBackendEvent;
+      } catch {
+        setIsSseConnected(false);
+      }
+    };
+
+    connectSSE();
+
+    return () => {
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [addEvent, advanceToStage, triggerLiveDenial]);
 
   return (
     <DemoContext.Provider
@@ -751,6 +894,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         authorityPolicies,
         capabilityModalOpen,
         liveDenialActive,
+        isSseConnected,
         setScreen: setActiveScreen,
         setScenario,
         startDemo,

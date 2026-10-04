@@ -1,5 +1,5 @@
 """
-CIVIS — Server-Sent Events (SSE) Router
+VANTIS — Server-Sent Events (SSE) Router
 Streams real-time provenance events, agent deliberations, and workforce actions to the frontend.
 """
 import asyncio
@@ -12,13 +12,13 @@ from sse_starlette.sse import EventSourceResponse
 
 from services.event_bus import get_event_bus, EventBus
 
-logger = logging.getLogger("civis.events")
+logger = logging.getLogger("vantis.events")
 router = APIRouter(prefix="/events", tags=["Events"])
 
 
 class EventPublishRequest(BaseModel):
     event_type: str = Field(..., example="INCIDENT_RECEIVED")
-    actor: str = Field(..., example="civis-system")
+    actor: str = Field(..., example="vantis-system")
     message: str = Field(..., example="Incident reported")
     payload: dict = Field(default_factory=dict)
     incident_id: Optional[str] = None
@@ -43,7 +43,7 @@ async def stream_events(
             "data": json.dumps({
                 "status": "connected",
                 "incident_id": incident_id,
-                "message": "Connected to CIVIS SSE event stream",
+                "message": "Connected to VANTIS SSE event stream",
             }),
             "id": "init",
         }

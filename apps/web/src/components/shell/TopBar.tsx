@@ -20,6 +20,7 @@ export function TopBar() {
     activeScreen,
     incident,
     openReportModal,
+    isSseConnected,
   } = useDemo();
 
   const screenTitles: Record<string, string> = {
@@ -38,10 +39,10 @@ export function TopBar() {
         <div className="flex items-center gap-2.5">
           <img
             src="/civis-logo.png"
-            alt="CIVIS Autonomous Crisis Command"
+            alt="VANTIS Autonomous Crisis Command"
             className="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(34,211,238,0.65)] hover:scale-110 transition-transform"
           />
-          <span className="text-sm font-bold text-white font-mono tracking-wider">CIVIS</span>
+          <span className="text-sm font-bold text-white font-mono tracking-wider">VANTIS</span>
         </div>
         <span className="text-white/20 font-mono">/</span>
         <h1 className="text-xs font-semibold text-[#EDEDEF] tracking-tight font-sans">
@@ -60,6 +61,13 @@ export function TopBar() {
         </span>
         <span className="text-white/20">|</span>
         <span className="text-[#A1A1AA]">A2A PROTOCOL v2.4</span>
+        <span className="text-white/20">|</span>
+        <span className="flex items-center gap-1.5 font-bold">
+          <span className={`w-1.5 h-1.5 rounded-full ${isSseConnected ? 'bg-cyan-400 animate-ping' : 'bg-zinc-500'}`} />
+          <span className={isSseConnected ? 'text-cyan-400' : 'text-zinc-500'}>
+            SSE: {isSseConnected ? 'LIVE FEED' : 'STANDBY'}
+          </span>
+        </span>
         <span className="text-white/20">|</span>
         <span className="text-cyan-400 font-bold">BENGALURU CIVIC GRID</span>
       </div>

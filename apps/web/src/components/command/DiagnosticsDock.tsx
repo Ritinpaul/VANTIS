@@ -31,7 +31,7 @@ interface SectorDiagnosticData {
 
 const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
   'pier-4': {
-    code: 'CIVIS-TEL-001',
+    code: 'VANTIS-TEL-001',
     badge: 'CRITICAL HAZARD',
     badgeColor: 'red',
     metrics: [
@@ -49,7 +49,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'ETA 14 MIN',
   },
   'marathahalli-gate': {
-    code: 'CIVIS-CAM-018',
+    code: 'VANTIS-CAM-018',
     badge: 'VISION ACTIVE',
     badgeColor: 'cyan',
     metrics: [
@@ -67,7 +67,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'SEDANS DIVERTED',
   },
   'varthur-outfall': {
-    code: 'CIVIS-SMS-009',
+    code: 'VANTIS-SMS-009',
     badge: 'CITIZEN FLARE',
     badgeColor: 'red',
     metrics: [
@@ -85,7 +85,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'BACKFLOW GUARD ACTIVE',
   },
   'koramangala-pump': {
-    code: 'CIVIS-HYDRO-012',
+    code: 'VANTIS-HYDRO-012',
     badge: 'HYDRO ACTIVE',
     badgeColor: 'cyan',
     metrics: [
@@ -103,7 +103,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'STORM BASIN ACTIVE',
   },
   'central-command': {
-    code: 'CIVIS-GOV-004',
+    code: 'VANTIS-GOV-004',
     badge: 'GOVERNANCE AUDIT',
     badgeColor: 'cyan',
     metrics: [
@@ -121,7 +121,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'A2A ORCHESTRATOR',
   },
   'hebbal-hub': {
-    code: 'CIVIS-UAV-003',
+    code: 'VANTIS-UAV-003',
     badge: 'UAV RECON',
     badgeColor: 'cyan',
     metrics: [
@@ -139,7 +139,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'NORTH CORRIDOR READY',
   },
   'ulsoor-gate': {
-    code: 'CIVIS-HYD-019',
+    code: 'VANTIS-HYD-019',
     badge: 'SLUICE TELEMETRY',
     badgeColor: 'cyan',
     metrics: [
@@ -157,7 +157,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'CENTRAL SECTOR STANDBY',
   },
   'ecity-toll': {
-    code: 'CIVIS-CAM-004',
+    code: 'VANTIS-CAM-004',
     badge: 'PERCEPTION STREAM',
     badgeColor: 'cyan',
     metrics: [
@@ -175,7 +175,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'SOUTH GATE STANDBY',
   },
   'manyata-gate': {
-    code: 'CIVIS-CAM-007',
+    code: 'VANTIS-CAM-007',
     badge: 'DRAINAGE SURGE',
     badgeColor: 'red',
     metrics: [
@@ -193,7 +193,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'DRAINAGE BALANCED',
   },
   'peenya-hub': {
-    code: 'CIVIS-UAV-011',
+    code: 'VANTIS-UAV-011',
     badge: 'AERIAL SCAN',
     badgeColor: 'cyan',
     metrics: [
@@ -211,7 +211,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'WEST CORRIDOR SECURE',
   },
   'silkboard-hub': {
-    code: 'CIVIS-TEL-022',
+    code: 'VANTIS-TEL-022',
     badge: 'GRIDLOCK CRITICAL',
     badgeColor: 'red',
     metrics: [
@@ -229,7 +229,7 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     destSub: 'CORRIDOR MITIGATED',
   },
   'itpl-hub': {
-    code: 'CIVIS-TEL-041',
+    code: 'VANTIS-TEL-041',
     badge: 'RETENTION GUARD',
     badgeColor: 'cyan',
     metrics: [

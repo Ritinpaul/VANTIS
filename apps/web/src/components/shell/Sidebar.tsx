@@ -30,15 +30,15 @@ export function Sidebar() {
     <aside className="w-[60px] h-screen border-r border-white/[0.08] bg-[#07080B] flex flex-col justify-between items-center py-3 select-none z-30 shrink-0">
       {/* Top Section: Brand Logo + Primary Rail */}
       <div className="flex flex-col items-center gap-4 w-full">
-        {/* Brand Icon: Official CIVIS Shield Emblem (No Extra Background) */}
+        {/* Brand Icon: Official VANTIS Shield Emblem (No Extra Background) */}
         <button
           onClick={() => setScreen('command')}
           className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group relative"
-          title="CIVIS Command Core"
+          title="VANTIS Command Core"
         >
           <img
             src="/civis-logo.png"
-            alt="CIVIS Autonomous Crisis Command"
+            alt="VANTIS Autonomous Crisis Command"
             className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(34,211,238,0.7)] group-hover:drop-shadow-[0_0_18px_rgba(34,211,238,0.95)] transition-all"
           />
         </button>

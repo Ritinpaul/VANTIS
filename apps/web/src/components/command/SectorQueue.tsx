@@ -37,7 +37,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       return [
         {
           id: 'silkboard-hub',
-          code: 'CIVIS-TEL-022',
+          code: 'VANTIS-TEL-022',
           sourceType: 'TELEMETRY',
           title: 'Arterial Density Sensor Array',
           subtitle: 'Silk Board Intermodal Flyover',
@@ -48,7 +48,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'ecity-toll',
-          code: 'CIVIS-CAM-004',
+          code: 'VANTIS-CAM-004',
           sourceType: 'VISION',
           title: 'Gemini Traffic Perception Stream',
           subtitle: 'Hosur Elevated Ingress Cam-04',
@@ -59,7 +59,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'koramangala-pump',
-          code: 'CIVIS-SMS-031',
+          code: 'VANTIS-SMS-031',
           sourceType: 'SMS',
           title: 'Citizen Transit Deadlock Beacon',
           subtitle: 'BTM Feeder Road Flare',
@@ -75,7 +75,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       return [
         {
           id: 'hebbal-hub',
-          code: 'CIVIS-UAV-003',
+          code: 'VANTIS-UAV-003',
           sourceType: 'UAV',
           title: 'Autonomous UAV Aeroponics Scan',
           subtitle: 'Hebbal Flyover Staging Hub B',
@@ -86,7 +86,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'manyata-gate',
-          code: 'CIVIS-CAM-007',
+          code: 'VANTIS-CAM-007',
           sourceType: 'VISION',
           title: 'Gemini Multimodal Storm Stream',
           subtitle: 'Airport Expressway Cam-07 Feed',
@@ -97,7 +97,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'ulsoor-gate',
-          code: 'CIVIS-SMS-052',
+          code: 'VANTIS-SMS-052',
           sourceType: 'SMS',
           title: 'Airport Commuter Emergency Flare',
           subtitle: 'Yelahanka Feeder Arterial',
@@ -113,7 +113,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
     return [
       {
         id: 'pier-4',
-        code: 'CIVIS-TEL-001',
+        code: 'VANTIS-TEL-001',
         sourceType: 'TELEMETRY',
         title: 'Water Crest Depth Telemetry (Pier 4)',
         subtitle: 'Bellandur Lake Spillway Corridor',
@@ -124,7 +124,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       },
       {
         id: 'marathahalli-gate',
-        code: 'CIVIS-CAM-018',
+        code: 'VANTIS-CAM-018',
         sourceType: 'VISION',
         title: 'Gemini Multimodal Vision Stream',
         subtitle: 'Outer Ring Road (ORR) Cam-18 Feed',
@@ -135,7 +135,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       },
       {
         id: 'varthur-outfall',
-        code: 'CIVIS-SMS-009',
+        code: 'VANTIS-SMS-009',
         sourceType: 'SMS',
         title: 'Citizen Emergency Transit Flare',
         subtitle: 'HAL Bypass Arterial Intersection',
@@ -152,7 +152,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       return [
         {
           id: 'central-command',
-          code: 'CIVIS-GOV-004',
+          code: 'VANTIS-GOV-004',
           sourceType: 'TELEMETRY',
           title: 'GovernOS Battery BAT-2026 Audit Stream',
           subtitle: 'Traffic Rebalance Agent Candidate',
@@ -162,7 +162,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'pier-4',
-          code: 'CIVIS-TEL-001',
+          code: 'VANTIS-TEL-001',
           sourceType: 'TELEMETRY',
           title: 'Water Crest Depth Telemetry (Pier 4)',
           subtitle: 'Bellandur Sluice Monitor',
@@ -172,7 +172,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'ulsoor-gate',
-          code: 'CIVIS-HYD-019',
+          code: 'VANTIS-HYD-019',
           sourceType: 'DRAINAGE',
           title: 'Smart Sluice Pressure Telemetry',
           subtitle: 'Central Storm Channel',
@@ -182,7 +182,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'peenya-hub',
-          code: 'CIVIS-UAV-011',
+          code: 'VANTIS-UAV-011',
           sourceType: 'UAV',
           title: 'Metro Corridor Aerial Scan',
           subtitle: 'West Zone Drone Hub',
@@ -197,7 +197,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       return [
         {
           id: 'central-command',
-          code: 'CIVIS-GOV-004',
+          code: 'VANTIS-GOV-004',
           sourceType: 'TELEMETRY',
           title: 'GovernOS Battery BAT-2026 Audit Stream',
           subtitle: 'Sump Sluice Venting Candidate',
@@ -207,7 +207,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'koramangala-pump',
-          code: 'CIVIS-HYDRO-012',
+          code: 'VANTIS-HYDRO-012',
           sourceType: 'DRAINAGE',
           title: 'Canal Outfall Flow Sensor (12,000 LPM)',
           subtitle: 'Koramangala Basin Sluice',
@@ -217,7 +217,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'pier-4',
-          code: 'CIVIS-TEL-001',
+          code: 'VANTIS-TEL-001',
           sourceType: 'TELEMETRY',
           title: 'Water Crest Depth Telemetry (Pier 4)',
           subtitle: 'Bellandur Lake Spillway Corridor',
@@ -227,7 +227,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
         },
         {
           id: 'itpl-hub',
-          code: 'CIVIS-TEL-041',
+          code: 'VANTIS-TEL-041',
           sourceType: 'TELEMETRY',
           title: 'Whitefield Auxiliary Storm Sensor',
           subtitle: 'ITPL Channel Retention Guard',
@@ -241,7 +241,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
     return [
       {
         id: 'koramangala-pump',
-        code: 'CIVIS-HYDRO-012',
+        code: 'VANTIS-HYDRO-012',
         sourceType: 'DRAINAGE',
         title: 'Canal Outfall Flow Sensor (12,000 LPM)',
         subtitle: 'Koramangala Basin Sluice',
@@ -251,7 +251,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       },
       {
         id: 'central-command',
-        code: 'CIVIS-GOV-004',
+        code: 'VANTIS-GOV-004',
         sourceType: 'TELEMETRY',
         title: 'GovernOS Battery BAT-2026 Audit Stream',
         subtitle: 'Passage Assessment Agent Candidate',
@@ -261,7 +261,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       },
       {
         id: 'hebbal-hub',
-        code: 'CIVIS-UAV-003',
+        code: 'VANTIS-UAV-003',
         sourceType: 'UAV',
         title: 'Autonomous UAV Aeroponics Scan',
         subtitle: 'Hebbal Flyover Staging Hub B',
@@ -271,7 +271,7 @@ export function SectorQueue({ selectedSectorId, onSelectSector }: SectorQueuePro
       },
       {
         id: 'ulsoor-gate',
-        code: 'CIVIS-HYD-019',
+        code: 'VANTIS-HYD-019',
         sourceType: 'DRAINAGE',
         title: 'Smart Sluice Pressure Telemetry',
         subtitle: 'Central Storm Channel Drainage',

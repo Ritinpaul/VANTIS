@@ -1,17 +1,18 @@
 """
-CIVIS — Gemini Intelligence Layer
-7 specialized LLM jobs powering the adaptation and reasoning lifecycle:
-  1. understand_incident     (gemini-2.5-flash)
-  2. decompose_capabilities  (gemini-2.5-flash)
-  3. specify_specialist      (gemini-2.5-pro)
-  4. generate_evaluation_cases (gemini-2.5-flash)
-  5. analyze_failure         (gemini-2.5-pro)
-  6. plan_repair             (gemini-2.5-pro)
-  7. coordinate_swarm        (gemini-2.5-flash)
+VANTIS — Multi-Agent Intelligence Layer
+Powered by NVIDIA Nemotron (via Nebius Token Factory) & Gemini:
+  1. understand_incident
+  2. decompose_capabilities
+  3. specify_specialist
+  4. generate_evaluation_cases
+  5. analyze_failure
+  6. plan_repair
+  7. coordinate_swarm
 
 All jobs feature:
 - Strict Pydantic model validation
 - JSON mode extraction with markdown block stripping
+- Nebius Token Factory primary reasoning with Gemini fallback
 - High-fidelity deterministic DEMO_RESPONSES fallback for 100% demo uptime
 """
 import json
@@ -22,7 +23,7 @@ from pydantic import BaseModel, Field
 
 from core.settings import get_settings
 
-logger = logging.getLogger("civis.intelligence")
+logger = logging.getLogger("vantis.intelligence")
 settings = get_settings()
 
 
@@ -435,6 +436,61 @@ class IntelligenceEngine:
             logger.warning(f"[IntelligenceEngine] Failed to configure Gemini model {model_name}: {e}")
             return None
 
+    async def _invoke_nebius_nemotron(
+        self,
+        prompt: str,
+        pydantic_cls: Any,
+    ) -> Optional[Any]:
+        """
+        Call NVIDIA Nemotron hosted on Nebius Token Factory (OpenAI-compatible API).
+        Primary reasoning engine (Phase 21).
+        """
+        api_key = settings.nebius_api_key
+        if not api_key:
+            return None
+
+        import httpx
+        base_url = settings.nebius_base_url.rstrip("/")
+        model = settings.nemotron_model
+
+        try:
+            logger.info(f"[IntelligenceEngine] Invoking Nemotron on Nebius Token Factory ({model})...")
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(
+                    f"{base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": model,
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": "You are VANTIS, an autonomous urban crisis intelligence and multi-agent reasoning engine. Respond strictly with valid JSON conforming to the requested schema.",
+                            },
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": 0.2,
+                        "response_format": {"type": "json_object"},
+                    },
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    content = data["choices"][0]["message"]["content"]
+                    cleaned = re.sub(r"^```(?:json)?\s*", "", content.strip())
+                    cleaned = re.sub(r"\s*```$", "", cleaned).strip()
+                    parsed = json.loads(cleaned)
+                    return pydantic_cls(**parsed)
+                else:
+                    logger.warning(
+                        f"[IntelligenceEngine] Nebius Nemotron returned status {resp.status_code}: {resp.text}"
+                    )
+                    return None
+        except Exception as e:
+            logger.warning(f"[IntelligenceEngine] Nebius Nemotron call failed: {e}")
+            return None
+
     async def _invoke_llm_json(
         self,
         model_name: str,
@@ -442,7 +498,14 @@ class IntelligenceEngine:
         fallback_key: str,
         pydantic_cls: Any,
     ) -> Any:
-        """Call Gemini model with JSON enforcement or fall back to DEMO_RESPONSES."""
+        """Call Nemotron (primary) or Gemini model with JSON enforcement, or fall back to DEMO_RESPONSES."""
+        # 1. Primary Reasoning Engine: Nebius Token Factory / Nemotron (Phase 21)
+        if getattr(settings, "primary_reasoning_provider", "nemotron").lower() in ("nemotron", "nebius"):
+            nemotron_result = await self._invoke_nebius_nemotron(prompt, pydantic_cls)
+            if nemotron_result is not None:
+                return nemotron_result
+
+        # 2. Secondary Reasoning Engine: Gemini
         model = self._get_genai_model(model_name)
         if model:
             try:
@@ -457,7 +520,7 @@ class IntelligenceEngine:
             except Exception as e:
                 logger.warning(f"[IntelligenceEngine] LLM call failed ({e}). Using DEMO_RESPONSES[{fallback_key}].")
 
-        # Fallback
+        # 3. Fallback
         fallback_data = DEMO_RESPONSES.get(fallback_key, {})
         return pydantic_cls(**fallback_data)
 

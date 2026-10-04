@@ -1,5 +1,5 @@
 """
-CIVIS — Core Settings
+VANTIS — Core Settings
 Loaded from environment variables / .env file.
 """
 from pydantic_settings import BaseSettings
@@ -8,12 +8,18 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "postgresql://civis:civis@localhost:5432/civis"
+    database_url: str = "postgresql://vantis:vantis@localhost:5432/vantis"
 
-    # Gemini
+    # Nebius Token Factory & Nemotron (Phases 20 & 21)
+    nebius_api_key: str = ""
+    nebius_base_url: str = "https://api.studio.nebius.ai/v1"
+    nemotron_model: str = "nvidia/Llama-3_1-Nemotron-70B-Instruct-HF"
+    primary_reasoning_provider: str = "nemotron"  # "nemotron" | "nebius" | "gemini"
+
+    # Gemini (Secondary / Fallback provider)
     gemini_api_key: str = ""
     gemini_fast_model: str = "gemini-2.5-flash"   # understand, decompose, eval, swarm
-    gemini_smart_model: str = "gemini-2.5-pro"    # specify, analyze_failure, plan_repair
+    gemini_smart_model: str = "gemini-2.5-pro"    # specify_specialist, analyze_failure, plan_repair
 
     # App
     environment: str = "development"
@@ -27,7 +33,7 @@ class Settings(BaseSettings):
     demo_act4_delay: float = 0.5
 
     # CORS
-    allowed_origins: str = "http://localhost:3000,https://civis.vercel.app"
+    allowed_origins: str = "http://localhost:3000,https://vantis.vercel.app"
 
     @property
     def origins_list(self) -> list[str]:

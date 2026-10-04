@@ -165,7 +165,7 @@ export function CommandCenter() {
             {scenarioDropdownOpen && (
               <div className="absolute top-full left-0 mt-1.5 w-[330px] sm:w-[370px] rounded-xl bg-[#0B0E17]/98 backdrop-blur-2xl border border-cyan-500/30 shadow-2xl shadow-black/90 z-50 p-1.5 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-150">
                 <div className="flex items-center justify-between px-2.5 py-1 text-[10px] font-mono text-[#71717A] uppercase tracking-wider border-b border-white/[0.06]">
-                  <span>CIVIS CRISIS SIMULATOR</span>
+                  <span>VANTIS CRISIS SIMULATOR</span>
                   <span className="text-cyan-400/80 font-semibold">3 SCENARIOS</span>
                 </div>
 

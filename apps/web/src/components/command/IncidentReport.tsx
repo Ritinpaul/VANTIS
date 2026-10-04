@@ -92,10 +92,10 @@ export function IncidentReportModal({ isOpen, onClose }: IncidentReportModalProp
           <div className="flex items-center gap-2.5 text-cyan-400">
             <img
               src="/civis-logo.png"
-              alt="CIVIS"
+              alt="VANTIS"
               className="w-4 h-4 object-contain drop-shadow-[0_0_6px_rgba(34,211,238,0.7)]"
             />
-            <span>BENGALURU MUNICIPAL CRISIS COMMAND CELL // PROJECT CIVIS</span>
+            <span>BENGALURU MUNICIPAL CRISIS COMMAND CELL // PROJECT VANTIS</span>
           </div>
           <span className="hidden sm:inline px-2 py-0.5 rounded text-[9.5px] font-mono bg-white/[0.04] text-zinc-400 border border-white/[0.08]">
             ICS FORM 209 COMPLIANT
@@ -309,11 +309,11 @@ export function IncidentReportModal({ isOpen, onClose }: IncidentReportModalProp
                 </div>
                 <div className="space-y-2">
                   {[
-                    { id: 'CIVIS-COORD-01', role: 'Municipal Crisis Swarm Coordinator', core: 'Gemini 2.5 Flash', cap: 'topology.route, a2a.dispatch', status: 'SYNCHRONIZED' },
-                    { id: 'CIVIS-TRIAGE-001', role: 'Sensor Fusion & Anomaly Triage', core: 'Deterministic + ML', cap: 'telemetry.filter, surge.detect', status: 'SYNCHRONIZED' },
-                    { id: 'CIVIS-GOV-002', role: 'GovernOS Sentinel Policy Gate', core: 'Sandboxed Kernel', cap: 'governance.audit, hitl.enforce', status: 'ACTIVE' },
-                    { id: 'CIVIS-CIT-014', role: 'Citizen Ingestion & SOS Beacon Hub', core: 'Gemini Multimodal', cap: 'citizen_flare.intake, sms.verify', status: 'SYNCHRONIZED' },
-                    { id: 'CIVIS-SPEC-005', role: activeScenario === 'silkboard-gridlock' ? 'Traffic Swarm Coordinator' : activeScenario === 'hebbal-surge' ? 'Basin Vent Optimizer' : 'Passage Assessment Specialist', core: 'Gemini 2.5 Flash', cap: activeScenario === 'silkboard-gridlock' ? 'traffic_intercept.rebalance' : activeScenario === 'hebbal-surge' ? 'sluice_pressure.vent' : 'flood_passability.calc', status: 'EXPANDED (+1)' },
+                    { id: 'VANTIS-COORD-01', role: 'Municipal Crisis Swarm Coordinator', core: 'Gemini 2.5 Flash', cap: 'topology.route, a2a.dispatch', status: 'SYNCHRONIZED' },
+                    { id: 'VANTIS-TRIAGE-001', role: 'Sensor Fusion & Anomaly Triage', core: 'Deterministic + ML', cap: 'telemetry.filter, surge.detect', status: 'SYNCHRONIZED' },
+                    { id: 'VANTIS-GOV-002', role: 'GovernOS Sentinel Policy Gate', core: 'Sandboxed Kernel', cap: 'governance.audit, hitl.enforce', status: 'ACTIVE' },
+                    { id: 'VANTIS-CIT-014', role: 'Citizen Ingestion & SOS Beacon Hub', core: 'Gemini Multimodal', cap: 'citizen_flare.intake, sms.verify', status: 'SYNCHRONIZED' },
+                    { id: 'VANTIS-SPEC-005', role: activeScenario === 'silkboard-gridlock' ? 'Traffic Swarm Coordinator' : activeScenario === 'hebbal-surge' ? 'Basin Vent Optimizer' : 'Passage Assessment Specialist', core: 'Gemini 2.5 Flash', cap: activeScenario === 'silkboard-gridlock' ? 'traffic_intercept.rebalance' : activeScenario === 'hebbal-surge' ? 'sluice_pressure.vent' : 'flood_passability.calc', status: 'EXPANDED (+1)' },
                   ].map((ag, i) => (
                     <div key={i} className="p-3 rounded-lg bg-[#141722] border border-white/5 flex items-center justify-between text-[11px]">
                       <div>
@@ -358,7 +358,7 @@ export function IncidentReportModal({ isOpen, onClose }: IncidentReportModalProp
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[#71717A]">Authorization:</span>
-                    <span className="text-emerald-400 font-bold">CONFIRMED BY CIVIS MISSION COMMANDER</span>
+                    <span className="text-emerald-400 font-bold">CONFIRMED BY VANTIS MISSION COMMANDER</span>
                   </div>
                 </div>
               </div>
@@ -425,10 +425,10 @@ export function IncidentReportModal({ isOpen, onClose }: IncidentReportModalProp
               <div className="p-4 rounded-xl bg-[#10131C] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px]">
                 <div>
                   <span className="text-white font-bold block">
-                    AUTH SIGNATURE: BBMP Disaster Management & CIVIS Oversight Board
+                    AUTH SIGNATURE: BBMP Disaster Management & VANTIS Oversight Board
                   </span>
                   <span className="text-[10px] text-[#71717A]">
-                    Deterministic Verification ID: KSDMA-CIVIS-2026-BENGALURU-SEC4
+                    Deterministic Verification ID: KSDMA-VANTIS-2026-BENGALURU-SEC4
                   </span>
                 </div>
                 <div className="sm:text-right">

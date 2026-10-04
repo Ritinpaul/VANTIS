@@ -1,5 +1,5 @@
 """
-CIVIS — Capability Registry Engine (Phase 3)
+VANTIS — Capability Registry Engine (Block A / Block B)
 Single authority for capability lookup, eligibility, and compatibility.
 Used by Act5Orchestrator and IncidentResolver.
 Never calls AdaptationEngine.
@@ -13,7 +13,7 @@ from models.agent import Agent
 from models.authority import Authority
 from models.evaluation import Evaluation
 
-logger = logging.getLogger("civis.registry")
+logger = logging.getLogger("vantis.registry")
 
 
 class CapabilityRegistry:

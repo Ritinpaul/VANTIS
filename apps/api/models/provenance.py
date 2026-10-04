@@ -1,9 +1,7 @@
 """
-CIVIS — ProvenanceEvent Model
-Immutable audit trail. Every CIVIS action is logged here.
-This is the authoritative record judges can inspect.
-
-Full INC-002 timeline = 20 events from INCIDENT_RECEIVED → CAPABILITY_PERSISTED.
+VANTIS — ProvenanceEvent Model
+Immutable audit trail. Every VANTIS action is logged here.
+This is the authoritative record inspectors and evaluators can verify.
 """
 import uuid
 from datetime import datetime
@@ -74,6 +72,8 @@ class ProvenanceEvent(Base):
     message: Mapped[str] = mapped_column(Text, nullable=False, default="")
     payload: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    previous_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, default=None)
+    event_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, default=None)
 
     def to_dict(self) -> dict:
         return {
@@ -83,5 +83,7 @@ class ProvenanceEvent(Base):
             "actor": self.actor,
             "message": self.message,
             "payload": self.payload,
+            "previous_hash": self.previous_hash,
+            "event_hash": self.event_hash,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
         }

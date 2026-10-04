@@ -62,6 +62,26 @@ from engines.provenance import (
     get_provenance_engine,
     CANONICAL_20_EVENTS,
 )
+from engines.capability_registry import (
+    CapabilityRegistry,
+    capability_registry,
+    get_capability_registry,
+)
+from engines.act5 import (
+    Act5Orchestrator,
+    act5_orchestrator,
+    get_act5_orchestrator,
+)
+from engines.incident_resolver import (
+    IncidentResolver,
+    incident_resolver,
+    get_incident_resolver,
+)
+from engines.regression_gate import (
+    RegressionGate,
+    regression_gate,
+    get_regression_gate,
+)
 
 __all__ = [
     "IntelligenceEngine",
@@ -108,6 +128,18 @@ __all__ = [
     "provenance_engine",
     "get_provenance_engine",
     "CANONICAL_20_EVENTS",
+    "CapabilityRegistry",
+    "capability_registry",
+    "get_capability_registry",
+    "Act5Orchestrator",
+    "act5_orchestrator",
+    "get_act5_orchestrator",
+    "IncidentResolver",
+    "incident_resolver",
+    "get_incident_resolver",
+    "RegressionGate",
+    "regression_gate",
+    "get_regression_gate",
 ]
 
 

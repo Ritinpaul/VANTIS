@@ -1,10 +1,8 @@
 """
-CIVIS — Provenance Engine (Phase 15)
+VANTIS — Provenance Engine (Phase 13 / Phase 15)
 Provides immutable audit trail querying, story-stage grouping,
-and cryptographic SHA-256 integrity verification across city incident timelines.
-
+and cryptographic SHA-256 sequential integrity verification across incident timelines.
 Authoritative answer to: "How do you know what happened?"
-Canonical INC-002 timeline contains 20 events from INCIDENT_RECEIVED to CAPABILITY_PERSISTED.
 """
 import hashlib
 import json
@@ -16,7 +14,7 @@ from sqlalchemy.orm import Session
 from core.database import SessionLocal
 from models.provenance import ProvenanceEvent, EVENT_TYPES
 
-logger = logging.getLogger("civis.provenance")
+logger = logging.getLogger("vantis.provenance")
 
 # 20 Canonical Events for INC-002 story
 CANONICAL_20_EVENTS = [
@@ -174,6 +172,67 @@ class ProvenanceEngine:
             "verified": True,
             "first_event_timestamp": events[0].get("timestamp") if events else None,
             "last_event_timestamp": events[-1].get("timestamp") if events else None,
+        }
+
+    def verify_sequential_chain(
+        self,
+        incident_id: str = "INC-002",
+        db: Optional[Session] = None,
+    ) -> Dict[str, Any]:
+        """
+        Verify the sequential cryptographic hash chain across all events for an incident.
+        Ensures each event's previous_hash correctly references the preceding event's event_hash,
+        and recalculates event_hash to guarantee tamper evidence.
+        """
+        events = self.get_timeline(incident_id=incident_id, limit=500, db=db)
+        if not events:
+            return {
+                "incident_id": incident_id,
+                "total_events": 0,
+                "chain_valid": True,
+                "tampered_event_id": None,
+                "latest_hash": None,
+            }
+
+        expected_prev_hash = "0" * 64
+        for ev in events:
+            ev_id = ev.get("id", "")
+            prev_hash = ev.get("previous_hash")
+            event_hash = ev.get("event_hash")
+
+            # Check previous_hash link
+            if prev_hash and prev_hash != expected_prev_hash:
+                return {
+                    "incident_id": incident_id,
+                    "total_events": len(events),
+                    "chain_valid": False,
+                    "tampered_event_id": ev_id,
+                    "reason": f"previous_hash mismatch at event {ev_id}",
+                    "latest_hash": None,
+                }
+
+            # Recalculate event_hash if present
+            if event_hash:
+                payload_str = json.dumps(ev.get("payload", {}), sort_keys=True)
+                chain_str = f"{prev_hash}|{ev_id}|{ev.get('event_type')}|{ev.get('actor')}|{ev.get('message', '')}|{ev.get('timestamp')}|{payload_str}"
+                calc_hash = hashlib.sha256(chain_str.encode("utf-8")).hexdigest()
+                if calc_hash != event_hash:
+                    return {
+                        "incident_id": incident_id,
+                        "total_events": len(events),
+                        "chain_valid": False,
+                        "tampered_event_id": ev_id,
+                        "reason": f"hash corruption at event {ev_id}",
+                        "latest_hash": None,
+                    }
+                expected_prev_hash = event_hash
+
+        return {
+            "incident_id": incident_id,
+            "total_events": len(events),
+            "chain_valid": True,
+            "tampered_event_id": None,
+            "latest_hash": expected_prev_hash if expected_prev_hash != ("0" * 64) else None,
         }
 
     def get_canonical_20(self) -> List[Dict[str, Any]]:

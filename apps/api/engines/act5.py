@@ -1,6 +1,6 @@
 """
-CIVIS — Act V Orchestrator: Capability Lifecycle Engine (Reuse Path)
-Implements Phase 4: Zero-Forge Capability Reuse.
+VANTIS — Act V Orchestrator: Capability Lifecycle Engine (Reuse Path)
+Implements Zero-Forge Capability Reuse.
 
 Handles ONLY the REUSE path:
   DISCOVER → VERIFY → COMPATIBLE? → LOAD → REGISTER → EXECUTE → OBSERVE → PERSIST_REUSE
@@ -22,7 +22,7 @@ from agents.runtime import GenericAgentRuntime
 from agents.workforce_manager import get_workforce_manager, WorkforceManager
 from engines.capability_registry import get_capability_registry, CapabilityRegistry
 
-logger = logging.getLogger("civis.act5")
+logger = logging.getLogger("vantis.act5")
 
 
 class Act5Orchestrator:

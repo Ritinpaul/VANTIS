@@ -216,3 +216,146 @@ async def test_human_equivalent_authorization_rejection(db_session):
     )
     assert db_evt is not None
     assert db_evt.actor == "civis-governance"
+
+
+@pytest.mark.asyncio
+async def test_regression_gate_engine_execution(db_session):
+    """TEST 6 — Verify RegressionGate engine executes protected baseline battery and sets status."""
+    from engines.regression_gate import get_regression_gate
+    gate = get_regression_gate()
+
+    res = await gate.run_regression_suite(
+        candidate_capability_id="flood_passability",
+        candidate_agent_id="passage-agent",
+        db=db_session,
+        incident_id="INC-REG-RUN",
+    )
+    assert res["passed"] is True
+    assert res["regression_status"] == "passed"
+    assert res["test_results"]["weather_assessment"] == "passed"
+    assert res["test_results"]["traffic_monitoring"] == "passed"
+    assert res["test_results"]["infrastructure_monitoring"] == "passed"
+    assert res["test_results"]["emergency_coordination"] == "passed"
+    assert len(res["failed_tests"]) == 0
+    assert res["elapsed_ms"] > 0
+
+
+def test_independent_evaluation_integrity_enforcement(db_session):
+    """TEST 7 — Verify independent evaluation enforcement requires 7 passing test cases."""
+    from engines.evaluation import get_evaluation_engine
+    from models.evaluation import Evaluation
+
+    engine_eval = get_evaluation_engine()
+    agent_id = "agent-eval-test"
+
+    # Case 1: No evaluations
+    res_none = engine_eval.verify_evaluation_integrity(agent_id, db_session)
+    assert res_none["valid"] is False
+
+    # Case 2: Only 6 evaluations (incomplete)
+    for i in range(1, 7):
+        db_session.add(
+            Evaluation(
+                agent_id=agent_id,
+                capability_id="test_cap",
+                test_id=f"T0{i}",
+                test_name=f"test_{i}",
+                expected_output="PASSABLE",
+                actual_output="PASSABLE",
+                status="passed",
+                run_number=1,
+            )
+        )
+    db_session.commit()
+    res_incomplete = engine_eval.verify_evaluation_integrity(agent_id, db_session)
+    assert res_incomplete["valid"] is False
+
+    # Case 3: Complete 7 evaluations all passed
+    db_session.add(
+        Evaluation(
+            agent_id=agent_id,
+            capability_id="test_cap",
+            test_id="T07",
+            test_name="test_7",
+            expected_output="PASSABLE",
+            actual_output="PASSABLE",
+            status="passed",
+            run_number=1,
+        )
+    )
+    db_session.commit()
+    res_complete = engine_eval.verify_evaluation_integrity(agent_id, db_session)
+    assert res_complete["valid"] is True
+    assert res_complete["all_passed"] is True
+    assert res_complete["passed_count"] == 7
+
+
+@pytest.mark.asyncio
+async def test_human_equivalent_authorization_hardened_checks(db_session):
+    """TEST 8 — Verify human-equivalent authorization evaluates prohibited vs approved tools."""
+    from engines.governance import get_governance_engine
+    gov = get_governance_engine()
+
+    # Case 1: Prohibited sensitive tools requested
+    res_denied = await gov.evaluate_human_equivalent_authorization(
+        agent_id="risky-agent",
+        requested_tools=["traffic.write", "citizen.read"],
+        incident_id="INC-AUTH-CHECK",
+        db=db_session,
+    )
+    assert res_denied["authorized"] is False
+    assert res_denied["decision"] == "rejected"
+    assert "traffic.write" in res_denied["prohibited_tools"]
+
+    # Case 2: Bounded safe sensor tools requested
+    res_allowed = await gov.evaluate_human_equivalent_authorization(
+        agent_id="safe-agent",
+        requested_tools=["road.read", "weather.read", "imagery.read"],
+        incident_id="INC-AUTH-CHECK",
+        db=db_session,
+    )
+    assert res_allowed["authorized"] is True
+    assert res_allowed["decision"] == "approved"
+
+
+@pytest.mark.asyncio
+async def test_provenance_chain_sequential_cryptographic_verification(db_session):
+    """TEST 9 — Verify sequential cryptographic hash chain (SHA-256) and tamper detection."""
+    from services.event_bus import EventBus
+    from engines.provenance import get_provenance_engine
+    import hashlib
+    import json
+
+    bus = EventBus()
+    prov_eng = get_provenance_engine()
+    inc_id = "INC-CHAIN-TEST"
+
+    # Emit sequential events
+    ev1 = await bus.publish_provenance("INCIDENT_RECEIVED", "system", "Event 1", {"step": 1}, inc_id, db=db_session)
+    ev2 = await bus.publish_provenance("GEMINI_UNDERSTANDING", "ai", "Event 2", {"step": 2}, inc_id, db=db_session)
+    ev3 = await bus.publish_provenance("CAPABILITY_DECOMPOSITION", "ai", "Event 3", {"step": 3}, inc_id, db=db_session)
+
+    # Verify sequential hash linkage
+    assert ev1["previous_hash"] == "0" * 64
+    assert ev1["event_hash"] is not None
+    assert ev2["previous_hash"] == ev1["event_hash"]
+    assert ev3["previous_hash"] == ev2["event_hash"]
+
+    # Verify chain integrity
+    verify_res = prov_eng.verify_sequential_chain(incident_id=inc_id, db=db_session)
+    assert verify_res["chain_valid"] is True
+    assert verify_res["total_events"] == 3
+    assert verify_res["tampered_event_id"] is None
+    assert verify_res["latest_hash"] == ev3["event_hash"]
+
+    # Simulate tampering with event 2 in database
+    db_ev2 = db_session.query(ProvenanceEvent).filter(ProvenanceEvent.id == ev2["id"]).first()
+    assert db_ev2 is not None
+    db_ev2.message = "TAMPERED MESSAGE"
+    db_session.commit()
+
+    # Re-verify chain: must detect tampering
+    tampered_res = prov_eng.verify_sequential_chain(incident_id=inc_id, db=db_session)
+    assert tampered_res["chain_valid"] is False
+    assert tampered_res["tampered_event_id"] == ev2["id"]
+

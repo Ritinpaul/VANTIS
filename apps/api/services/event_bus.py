@@ -1,9 +1,10 @@
 """
-CIVIS — In-Memory EventBus Service
+VANTIS — In-Memory EventBus Service
 Asynchronous pub/sub event bus supporting real-time Server-Sent Events (SSE).
 Bridges internal agent/workflow events to HTTP SSE streams.
 """
 import asyncio
+import hashlib
 import json
 import logging
 import uuid
@@ -11,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Set, Optional, Any
 from sqlalchemy.orm import Session
 
-logger = logging.getLogger("civis.event_bus")
+logger = logging.getLogger("vantis.event_bus")
 
 
 class EventBus:
@@ -90,6 +91,22 @@ class EventBus:
         event_id = f"prov-{uuid.uuid4().hex[:8]}"
         payload_data = payload or {}
 
+        prev_hash = "0" * 64
+        if db is not None:
+            try:
+                q = db.query(ProvenanceEvent)
+                if incident_id:
+                    q = q.filter(ProvenanceEvent.incident_id == incident_id)
+                last_event = q.order_by(ProvenanceEvent.timestamp.desc(), ProvenanceEvent.id.desc()).first()
+                if last_event and getattr(last_event, "event_hash", None):
+                    prev_hash = last_event.event_hash
+            except Exception:
+                pass
+
+        payload_str = json.dumps(payload_data, sort_keys=True)
+        chain_str = f"{prev_hash}|{event_id}|{event_type}|{actor}|{message}|{now.isoformat()}|{payload_str}"
+        event_hash = hashlib.sha256(chain_str.encode("utf-8")).hexdigest()
+
         event_dict = {
             "id": event_id,
             "incident_id": incident_id,
@@ -97,6 +114,8 @@ class EventBus:
             "actor": actor,
             "message": message,
             "payload": payload_data,
+            "previous_hash": prev_hash,
+            "event_hash": event_hash,
             "timestamp": now.isoformat(),
         }
 
@@ -109,6 +128,8 @@ class EventBus:
                     actor=actor,
                     message=message,
                     payload=payload_data,
+                    previous_hash=prev_hash,
+                    event_hash=event_hash,
                     timestamp=now,
                 )
                 db.add(prov)

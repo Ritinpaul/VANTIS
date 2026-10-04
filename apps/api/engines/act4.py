@@ -1,5 +1,5 @@
 """
-CIVIS — Act IV Orchestrator: "The City Has Grown — Capability Persistence" (Phase 14)
+VANTIS — Act IV Orchestrator: Capability Persistence & Workforce Expansion
 Permanently persists the newly discovered and verified capability ('flood_passability v1.0.0')
 into the city registry and creates WorkforceSnapshot v2 (4 -> 5 capabilities).
 """
@@ -14,7 +14,7 @@ from models.agent import Agent
 from models.workforce import WorkforceSnapshot
 from services.event_bus import get_event_bus, EventBus
 
-logger = logging.getLogger("civis.act4")
+logger = logging.getLogger("vantis.act4")
 
 FLOOD_PASSABILITY_CAPABILITY = {
     "id": "flood_passability",

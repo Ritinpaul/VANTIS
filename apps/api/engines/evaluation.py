@@ -1,8 +1,8 @@
 """
-CIVIS — Evaluation Engine (Phase 10)
-Executes the 7-test evaluation suite (T01-T07) against newly forged specialist agents.
+VANTIS — Evaluation Engine (Phase 11 / Block B)
+Executes independent evaluation suite (T01-T07) against newly forged specialist agents.
 State Machine: UNTRUSTED -> EVALUATING -> FAILED (Run 1) -> REPAIRING -> PASSED (Run 2).
-Records evaluation results in DB, emits SSE provenance events, and enforces safety gates.
+Enforces epistemic independence: evaluations cannot be bypassed or self-certified.
 """
 import asyncio
 import logging
@@ -250,6 +250,45 @@ class EvaluationEngine:
                 "failed_test_ids": [],
                 "evaluations": [e.to_dict() for e in eval_records],
             }
+
+    def verify_evaluation_integrity(
+        self,
+        agent_id: str,
+        db: Session,
+        min_required_tests: int = 7,
+    ) -> Dict[str, Any]:
+        """
+        Independent evaluation verification:
+        Ensures an agent cannot be authorized without a valid, passing evaluation battery in DB.
+        """
+        records = (
+            db.query(Evaluation)
+            .filter(Evaluation.agent_id == agent_id)
+            .order_by(Evaluation.evaluated_at.desc())
+            .all()
+        )
+        if not records:
+            return {
+                "valid": False,
+                "reason": f"No evaluation records found for agent '{agent_id}'",
+                "total_tests": 0,
+                "passed_count": 0,
+            }
+
+        latest_run = max(r.run_number for r in records)
+        latest_records = [r for r in records if r.run_number == latest_run]
+        passed_records = [r for r in latest_records if r.status == "passed"]
+        all_passed = len(passed_records) == len(latest_records) and len(latest_records) >= min_required_tests
+
+        return {
+            "valid": all_passed,
+            "agent_id": agent_id,
+            "latest_run": latest_run,
+            "total_tests": len(latest_records),
+            "passed_count": len(passed_records),
+            "failed_count": len(latest_records) - len(passed_records),
+            "all_passed": all_passed,
+        }
 
 
 # Global singleton

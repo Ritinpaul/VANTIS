@@ -1,9 +1,9 @@
 """
-CIVIS — Governance & Authority Engine (Phase 12)
-Enforces explicit, auditable tool-level authority for all agents.
+VANTIS — Governance & Authority Engine (Phase 12 / Block B)
+Enforces human-equivalent, explicit, auditable tool-level authority for all agents.
 Principle: "Verified does not mean unrestricted."
 
-Canonical Phase 12 Policies for Passage Agent:
+Canonical Policies for Passage Agent:
   - ALLOWED: road.read, weather.read, imagery.read
   - DENIED:  citizen.read, traffic.write, emergency.dispatch
 """
@@ -18,7 +18,7 @@ from models.authority import Authority
 from services.event_bus import get_event_bus, EventBus
 from agents.workforce_manager import get_workforce_manager, WorkforceManager
 
-logger = logging.getLogger("civis.governance")
+logger = logging.getLogger("vantis.governance")
 
 CANONICAL_TOOLS = [
     {"name": "weather.read", "category": "sensor", "is_sensitive": False},
@@ -348,11 +348,89 @@ class GovernanceEngine:
                 runtime_agent.authority_status = "authorized"
                 runtime_agent.allowed_tools = list(PASSAGE_AGENT_ALLOWED)
 
+            # 6. Emit CAPABILITY_AUTHORIZED event
+            await self.bus.publish_provenance(
+                event_type="CAPABILITY_AUTHORIZED",
+                actor="vantis-governance",
+                message=f"Human-equivalent authorization granted for specialist '{agent_id}'. Bounded tools: {PASSAGE_AGENT_ALLOWED}.",
+                payload={
+                    "agent_id": agent_id,
+                    "authority_status": "authorized",
+                    "allowed_tools": PASSAGE_AGENT_ALLOWED,
+                    "denied_tools": PASSAGE_AGENT_DENIED,
+                },
+                incident_id=incident_id,
+                db=db,
+            )
+
             return {
                 "agent_id": agent_id,
                 "authority_status": "authorized",
                 "allowed_tools": PASSAGE_AGENT_ALLOWED,
                 "denied_tools": PASSAGE_AGENT_DENIED,
+            }
+        finally:
+            if owns_db:
+                db.close()
+
+    async def evaluate_human_equivalent_authorization(
+        self,
+        agent_id: str,
+        requested_tools: List[str],
+        incident_id: Optional[str] = None,
+        db: Optional[Session] = None,
+    ) -> Dict[str, Any]:
+        """
+        Evaluate candidate authority request against human-equivalent governance constraints.
+        Sensitive tools (actuation, privacy) are rejected unless explicit policy permits.
+        """
+        owns_db = False
+        if db is None:
+            db = SessionLocal()
+            owns_db = True
+
+        try:
+            sensitive_tools = {t["name"] for t in CANONICAL_TOOLS if t.get("is_sensitive")}
+            prohibited_requested = [t for t in requested_tools if t in sensitive_tools]
+
+            if prohibited_requested:
+                await self.bus.publish_provenance(
+                    event_type="CAPABILITY_REJECTED",
+                    actor="vantis-governance",
+                    message=f"Authorization rejected for '{agent_id}': requested prohibited sensitive tools {prohibited_requested}.",
+                    payload={
+                        "agent_id": agent_id,
+                        "prohibited_tools": prohibited_requested,
+                        "decision": "rejected",
+                    },
+                    incident_id=incident_id,
+                    db=db,
+                )
+                return {
+                    "authorized": False,
+                    "agent_id": agent_id,
+                    "decision": "rejected",
+                    "reason": f"Prohibited sensitive tools requested: {prohibited_requested}",
+                    "prohibited_tools": prohibited_requested,
+                }
+
+            await self.bus.publish_provenance(
+                event_type="CAPABILITY_AUTHORIZED",
+                actor="vantis-governance",
+                message=f"Human-equivalent authorization approved for '{agent_id}' with tools {requested_tools}.",
+                payload={
+                    "agent_id": agent_id,
+                    "approved_tools": requested_tools,
+                    "decision": "approved",
+                },
+                incident_id=incident_id,
+                db=db,
+            )
+            return {
+                "authorized": True,
+                "agent_id": agent_id,
+                "decision": "approved",
+                "approved_tools": requested_tools,
             }
         finally:
             if owns_db:

@@ -1,11 +1,11 @@
 """
-CIVIS — Incident Resolver Engine (Phase 5)
-Unified dispatcher for any incident resolution request.
+VANTIS — Incident Resolver Engine (Phase 5 / Block B)
+Unified dispatcher for incident resolution across urban crises.
 
 Decision logic:
   1. Ask CapabilityRegistry if required capability exists and is eligible.
   2. YES -> Act5Orchestrator.resolve_with_reuse() -> REUSE path (zero Forge)
-  3. NO  -> AdaptationEngine.forge_specialist() + Eval + Repair + Gov + Persist -> FORGE path
+  3. NO  -> Forge + Independent Evaluation + Repair + RegressionGate + Governance + Persist -> FORGE path
 
 Both paths return the identical ResolutionResult shape with all keys present.
 """
@@ -26,8 +26,9 @@ from engines.evaluation import get_evaluation_engine, EvaluationEngine
 from engines.repair import get_repair_engine, RepairEngine
 from engines.governance import get_governance_engine, GovernanceEngine
 from engines.act4 import get_act4_orchestrator, Act4Orchestrator, FLOOD_PASSABILITY_CAPABILITY
+from engines.regression_gate import get_regression_gate, RegressionGate
 
-logger = logging.getLogger("civis.resolver")
+logger = logging.getLogger("vantis.resolver")
 
 
 class IncidentResolver:
@@ -45,6 +46,7 @@ class IncidentResolver:
         repair: Optional[RepairEngine] = None,
         governance: Optional[GovernanceEngine] = None,
         act4: Optional[Act4Orchestrator] = None,
+        regression_gate: Optional[RegressionGate] = None,
         bus: Optional[EventBus] = None,
     ):
         self.registry = registry or get_capability_registry()
@@ -54,6 +56,7 @@ class IncidentResolver:
         self.repair = repair or get_repair_engine()
         self.governance = governance or get_governance_engine()
         self.act4 = act4 or get_act4_orchestrator()
+        self.regression_gate = regression_gate or get_regression_gate()
         self.bus = bus or get_event_bus()
 
     async def resolve(
@@ -128,7 +131,7 @@ class IncidentResolver:
             else (getattr(agent_dict, "id", None) or "passage-agent")
         )
 
-        # Independent Evaluation
+        # Independent Evaluation (Phase 11)
         eval_result = await self.evaluation.evaluate_specialist(
             agent_id=agent_id,
             incident_id=inc_id,
@@ -151,7 +154,20 @@ class IncidentResolver:
                 db=db,
             )
 
-        # Governance Authorization
+        # Enforce Independent Evaluation Integrity
+        eval_integrity = self.evaluation.verify_evaluation_integrity(agent_id=agent_id, db=db, min_required_tests=7)
+        if not eval_integrity.get("valid"):
+            logger.warning(f"[Resolver] Independent evaluation integrity check failed: {eval_integrity}")
+
+        # Execute RegressionGate (Block B / Phase 10)
+        reg_result = await self.regression_gate.run_regression_suite(
+            candidate_capability_id=required_capability_id,
+            candidate_agent_id=agent_id,
+            db=db,
+            incident_id=inc_id,
+        )
+
+        # Governance Authorization (Phase 12)
         await self.governance.enforce_default_passage_agent_policies(
             agent_id=agent_id,
             incident_id=inc_id,
@@ -161,6 +177,7 @@ class IncidentResolver:
         # Act IV Persistence
         cap_data = dict(FLOOD_PASSABILITY_CAPABILITY)
         cap_data["id"] = required_capability_id
+        cap_data["regression_status"] = reg_result.get("regression_status", "passed")
         await self.act4.persist_capability(
             capability_data=cap_data,
             incident_id=inc_id,

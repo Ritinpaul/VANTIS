@@ -24,9 +24,10 @@ from engines.act5 import get_act5_orchestrator, Act5Orchestrator
 from engines.adaptation import get_adaptation_engine, AdaptationEngine
 from engines.evaluation import get_evaluation_engine, EvaluationEngine
 from engines.repair import get_repair_engine, RepairEngine
-from engines.governance import get_governance_engine, GovernanceEngine
+from engines.governance import get_governance_engine, GovernanceEngine, PASSAGE_AGENT_ALLOWED
 from engines.act4 import get_act4_orchestrator, Act4Orchestrator, FLOOD_PASSABILITY_CAPABILITY
 from engines.regression_gate import get_regression_gate, RegressionGate
+from engines.provenance import get_provenance_engine, ProvenanceEngine
 
 logger = logging.getLogger("vantis.resolver")
 
@@ -47,6 +48,7 @@ class IncidentResolver:
         governance: Optional[GovernanceEngine] = None,
         act4: Optional[Act4Orchestrator] = None,
         regression_gate: Optional[RegressionGate] = None,
+        provenance: Optional[ProvenanceEngine] = None,
         bus: Optional[EventBus] = None,
     ):
         self.registry = registry or get_capability_registry()
@@ -57,6 +59,7 @@ class IncidentResolver:
         self.governance = governance or get_governance_engine()
         self.act4 = act4 or get_act4_orchestrator()
         self.regression_gate = regression_gate or get_regression_gate()
+        self.provenance = provenance or get_provenance_engine()
         self.bus = bus or get_event_bus()
 
     async def resolve(
@@ -91,6 +94,7 @@ class IncidentResolver:
 
             t1 = time.perf_counter()
             total_elapsed_ms = (t1 - t0) * 1000
+            chain_status = self.provenance.verify_sequential_chain(incident_id=inc_id, db=db)
 
             return {
                 "incident_id": inc_id,
@@ -107,6 +111,10 @@ class IncidentResolver:
                 "forge_result": None,
                 "reuse_result": reuse_res,
                 "compatibility_report": reuse_res.get("compatibility_report"),
+                "evaluation_integrity": None,
+                "regression_gate": None,
+                "authorization_gate": None,
+                "provenance_chain": chain_status,
                 "total_elapsed_ms": total_elapsed_ms,
                 "timestamp": datetime.utcnow().isoformat(),
             }
@@ -154,7 +162,7 @@ class IncidentResolver:
                 db=db,
             )
 
-        # Enforce Independent Evaluation Integrity
+        # Enforce Independent Evaluation Integrity (Phase 11)
         eval_integrity = self.evaluation.verify_evaluation_integrity(agent_id=agent_id, db=db, min_required_tests=7)
         if not eval_integrity.get("valid"):
             logger.warning(f"[Resolver] Independent evaluation integrity check failed: {eval_integrity}")
@@ -167,12 +175,22 @@ class IncidentResolver:
             incident_id=inc_id,
         )
 
-        # Governance Authorization (Phase 12)
-        await self.governance.enforce_default_passage_agent_policies(
+        # Hardened Human-Equivalent Governance Gate (Phase 12)
+        db_agent = db.query(Agent).filter(Agent.id == agent_id).first()
+        requested_tools = db_agent.tools if (db_agent and db_agent.tools) else PASSAGE_AGENT_ALLOWED
+        auth_res = await self.governance.evaluate_human_equivalent_authorization(
             agent_id=agent_id,
+            requested_tools=requested_tools,
             incident_id=inc_id,
             db=db,
         )
+
+        if auth_res.get("authorized"):
+            await self.governance.enforce_default_passage_agent_policies(
+                agent_id=agent_id,
+                incident_id=inc_id,
+                db=db,
+            )
 
         # Act IV Persistence
         cap_data = dict(FLOOD_PASSABILITY_CAPABILITY)
@@ -183,6 +201,41 @@ class IncidentResolver:
             incident_id=inc_id,
             db=db,
         )
+
+        # Check safety gate verdicts
+        gate_blocked = not eval_integrity.get("valid") or not reg_result.get("passed") or not auth_res.get("authorized")
+        if gate_blocked:
+            t1 = time.perf_counter()
+            total_elapsed_ms = (t1 - t0) * 1000
+            chain_status = self.provenance.verify_sequential_chain(incident_id=inc_id, db=db)
+            return {
+                "incident_id": inc_id,
+                "required_capability_id": required_capability_id,
+                "resolution_mode": "FORGE",
+                "forge_invoked": True,
+                "capability_reused": False,
+                "execution_success": False,
+                "reused_version": None,
+                "agent_id": agent_id,
+                "agent_output": {
+                    "blocked": True,
+                    "reason": "Safety gate rejection",
+                    "eval_integrity": eval_integrity,
+                    "regression_gate": reg_result,
+                    "authorization_gate": auth_res,
+                },
+                "downstream_decision": "BLOCKED_BY_SAFETY_GATE",
+                "execution_trace": [],
+                "forge_result": forge_result,
+                "reuse_result": None,
+                "compatibility_report": eligibility.get("compatibility"),
+                "evaluation_integrity": eval_integrity,
+                "regression_gate": reg_result,
+                "authorization_gate": auth_res,
+                "provenance_chain": chain_status,
+                "total_elapsed_ms": total_elapsed_ms,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
 
         # Re-fetch agent from DB to ensure authorized state
         agent = db.query(Agent).filter(Agent.id == agent_id).first()
@@ -202,6 +255,7 @@ class IncidentResolver:
 
         t1 = time.perf_counter()
         total_elapsed_ms = (t1 - t0) * 1000
+        chain_status = self.provenance.verify_sequential_chain(incident_id=inc_id, db=db)
 
         return {
             "incident_id": inc_id,
@@ -218,6 +272,10 @@ class IncidentResolver:
             "forge_result": forge_result,
             "reuse_result": None,
             "compatibility_report": eligibility.get("compatibility"),
+            "evaluation_integrity": eval_integrity,
+            "regression_gate": reg_result,
+            "authorization_gate": auth_res,
+            "provenance_chain": chain_status,
             "total_elapsed_ms": total_elapsed_ms,
             "timestamp": datetime.utcnow().isoformat(),
         }

@@ -1,7 +1,7 @@
 """
-CIVIS — Agent Model
+VANTIS — Agent Model
 A member of the city's AI workforce. Can be pre-existing (system)
-or forged by CIVIS in response to a capability gap.
+or forged by VANTIS in response to a capability gap.
 """
 import uuid
 from datetime import datetime

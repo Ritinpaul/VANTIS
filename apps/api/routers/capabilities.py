@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from models.capability import Capability
 from models.incident import Incident
+from models.provenance import ProvenanceEvent
 from services.event_bus import get_event_bus, EventBus
 from engines.intelligence import get_intelligence_engine, IntelligenceEngine, CapabilityDecomposition
 
@@ -50,12 +51,26 @@ def list_capabilities(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
 ):
-    """List all capabilities currently registered in the city's capability registry."""
+    """List all capabilities currently registered in the city's capability registry with reuse counts."""
     query = db.query(Capability)
     if status_filter:
         query = query.filter(Capability.status == status_filter)
     caps = query.order_by(Capability.created_at.asc()).all()
-    return [cap.to_dict() for cap in caps]
+
+    # Calculate real-time reuse counts from CAPABILITY_REUSED provenance events
+    reused_events = db.query(ProvenanceEvent).filter(ProvenanceEvent.event_type == "CAPABILITY_REUSED").all()
+    reuse_map: Dict[str, int] = {}
+    for evt in reused_events:
+        cid = (evt.payload or {}).get("capability_id")
+        if cid:
+            reuse_map[cid] = reuse_map.get(cid, 0) + 1
+
+    result = []
+    for cap in caps:
+        c_dict = cap.to_dict()
+        c_dict["reuse_count"] = reuse_map.get(cap.id, 0)
+        result.append(c_dict)
+    return result
 
 
 @router.get("/registry-status", response_model=dict)
@@ -70,11 +85,24 @@ def get_registry_status(db: Session = Depends(get_db)):
 
     has_passability = any(c.id == "flood_passability" for c in caps)
 
+    reused_events = db.query(ProvenanceEvent).filter(ProvenanceEvent.event_type == "CAPABILITY_REUSED").all()
+    reuse_map: Dict[str, int] = {}
+    for evt in reused_events:
+        cid = (evt.payload or {}).get("capability_id")
+        if cid:
+            reuse_map[cid] = reuse_map.get(cid, 0) + 1
+
+    caps_with_reuse = []
+    for c in caps:
+        c_dict = c.to_dict()
+        c_dict["reuse_count"] = reuse_map.get(c.id, 0)
+        caps_with_reuse.append(c_dict)
+
     return {
         "total_capabilities": len(caps),
         "verified_capabilities": len(verified_caps),
         "is_flood_passability_registered": has_passability,
-        "capabilities": [c.to_dict() for c in caps],
+        "capabilities": caps_with_reuse,
         "referenced_tools": sorted(list(all_tools)),
     }
 

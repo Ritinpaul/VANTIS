@@ -10,6 +10,7 @@ from routers.repair import router as repair_router
 from routers.authority import router as authority_router
 from routers.swarm import router as swarm_router
 from routers.provenance import router as provenance_router
+from routers.benchmark import router as benchmark_router
 
 __all__ = [
     "incidents_router",
@@ -24,6 +25,7 @@ __all__ = [
     "authority_router",
     "swarm_router",
     "provenance_router",
+    "benchmark_router",
 ]
 
 

@@ -54,5 +54,6 @@ class Capability(Base):
             "compatibility_contract": self.compatibility_contract,
             "regression_status": self.regression_status,
             "created_from_incident": self.created_from_incident,
+            "reuse_count": 0,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

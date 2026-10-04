@@ -112,7 +112,7 @@ export interface ScenarioInfo {
 
 export interface DemoState {
   stage: DemoStage;
-  activeScreen: 'command' | 'timeline' | 'workforce' | 'evaluation' | 'authority' | 'growth';
+  activeScreen: 'command' | 'timeline' | 'workforce' | 'evaluation' | 'authority' | 'growth' | 'capabilities' | 'benchmark';
   activeScenario: ScenarioId;
   isAutoPlaying: boolean;
   playbackSpeed: number; // 1x, 2x, 4x

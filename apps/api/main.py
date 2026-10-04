@@ -1,7 +1,6 @@
 """
-CIVIS — FastAPI Application Entry Point
-Phase 0: skeleton with /health only.
-Routes are added incrementally per phase.
+VANTIS — FastAPI Application Entry Point
+Autonomous Multi-Agent Crisis Defense System
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,15 +13,15 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown hooks."""
-    print(f"[CIVIS] Starting up — env={settings.environment}, demo_mode={settings.demo_mode}")
-    print(f"[CIVIS] Gemini fast={settings.gemini_fast_model}, smart={settings.gemini_smart_model}")
+    print(f"[VANTIS] Starting up — env={settings.environment}, demo_mode={settings.demo_mode}")
+    print(f"[VANTIS] Gemini fast={settings.gemini_fast_model}, smart={settings.gemini_smart_model}")
     yield
-    print("[CIVIS] Shutting down.")
+    print("[VANTIS] Shutting down.")
 
 
 app = FastAPI(
-    title="CIVIS API",
-    description="Cities that can adapt — AI workforce management system",
+    title="VANTIS API",
+    description="Autonomous Multi-Agent Crisis Defense System",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -64,6 +63,7 @@ from routers import (
     authority_router,
     swarm_router,
     provenance_router,
+    benchmark_router,
 )
 
 app.include_router(incidents_router)
@@ -78,5 +78,6 @@ app.include_router(repair_router)
 app.include_router(authority_router)
 app.include_router(swarm_router)
 app.include_router(provenance_router)
+app.include_router(benchmark_router)
 
 

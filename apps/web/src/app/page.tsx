@@ -8,6 +8,8 @@ import { WorkforceGraph } from '@/components/workforce/WorkforceGraph';
 import { EvaluationPanel } from '@/components/evaluation/EvaluationPanel';
 import { AuthorityPanel } from '@/components/authority/AuthorityPanel';
 import { WorkforceGrowth } from '@/components/growth/WorkforceGrowth';
+import { CapabilityRegistryPanel } from '@/components/capability/CapabilityRegistryPanel';
+import { BenchmarkDashboard } from '@/components/benchmark/BenchmarkDashboard';
 
 export default function Home() {
   const { activeScreen } = useDemo();
@@ -25,6 +27,10 @@ export default function Home() {
       return <AuthorityPanel />;
     case 'growth':
       return <WorkforceGrowth />;
+    case 'capabilities':
+      return <CapabilityRegistryPanel />;
+    case 'benchmark':
+      return <BenchmarkDashboard />;
     default:
       return <CommandCenter />;
   }

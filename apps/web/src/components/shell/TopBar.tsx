@@ -30,6 +30,8 @@ export function TopBar() {
     evaluation: 'Evaluation Panel',
     authority: 'GovernOS Matrix',
     growth: 'Workforce Growth',
+    capabilities: 'Capability Registry Panel',
+    benchmark: '30-Incident Benchmark Dashboard',
   };
 
   return (

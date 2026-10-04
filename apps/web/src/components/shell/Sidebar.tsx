@@ -9,6 +9,8 @@ import {
   FileTextIcon,
   CalendarIcon,
   TargetIcon,
+  ReaderIcon,
+  BarChartIcon,
 } from '@radix-ui/react-icons';
 
 export function Sidebar() {
@@ -23,6 +25,8 @@ export function Sidebar() {
     { id: 'workforce', icon: LightningBoltIcon, label: 'A2A Workforce Mesh', isPrimaryActive: activeScreen === 'workforce' },
     { id: 'evaluation', icon: FileTextIcon, label: 'GovernOS Evaluation', isPrimaryActive: activeScreen === 'evaluation' },
     { id: 'authority', icon: TargetIcon, label: 'GovernOS Authority Matrix', isPrimaryActive: activeScreen === 'authority' },
+    { id: 'capabilities', icon: ReaderIcon, label: 'Capability Registry', isPrimaryActive: activeScreen === 'capabilities' },
+    { id: 'benchmark', icon: BarChartIcon, label: '30-Incident Benchmark', isPrimaryActive: activeScreen === 'benchmark' },
     { id: 'growth', icon: ActivityLogIcon, label: 'Telemetry & Growth', isPrimaryActive: activeScreen === 'growth' },
   ];
 

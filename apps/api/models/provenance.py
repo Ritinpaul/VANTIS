@@ -85,5 +85,6 @@ class ProvenanceEvent(Base):
             "payload": self.payload,
             "previous_hash": self.previous_hash,
             "event_hash": self.event_hash,
+            "chain_hash": self.event_hash,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
         }

@@ -355,7 +355,7 @@ export function IncidentVisionModal({ isOpen, onClose, onOpenReport }: IncidentV
               className="w-4 h-4 object-contain drop-shadow-[0_0_6px_rgba(34,211,238,0.7)]"
             />
             <span className="font-mono text-white/90">
-              VANTIS OPERATIONAL DISPATCH // MULTIMODAL PERCEPTION // GEMINI 2.5 FLASH
+              VANTIS OPERATIONAL DISPATCH // MULTIMODAL PERCEPTION // NEMOTRON-4 MINI
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -609,7 +609,7 @@ export function IncidentVisionModal({ isOpen, onClose, onOpenReport }: IncidentV
                     {viewFilter === 'thermal'
                       ? 'FLIR LWIR 8-14μm'
                       : viewFilter === 'segmentation'
-                      ? 'GEMINI 2.5 EMBEDDING'
+                      ? 'NEMOTRON-4 EMBEDDING'
                       : 'CAM-ISO 3200'}
                   </span>
                   <span>·</span>

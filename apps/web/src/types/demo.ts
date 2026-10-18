@@ -11,7 +11,7 @@ export type DemoStage =
   | 'resolved';
 
 export type EventSource =
-  | 'GEMINI'
+  | 'NEMOTRON'
   | 'ORCHESTRATOR'
   | 'TRUST'
   | 'GOVERNOS'

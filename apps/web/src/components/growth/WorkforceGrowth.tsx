@@ -72,7 +72,7 @@ const BASELINE_CAPABILITIES: CapabilityMeta[] = [
     id: 'multimodal.analyze',
     name: 'multimodal.analyze',
     category: 'Perception',
-    provider: 'Gemini Vision Sensor',
+    provider: 'Nemotron Vision Sensor',
     version: 'v1.5.0',
     policyId: 'VISION-PERCEPTION-01',
     description: 'Analyze real-time optical, infrared, and UAV aerial telemetry for hazard recognition.',
@@ -84,7 +84,7 @@ const BASELINE_CAPABILITIES: CapabilityMeta[] = [
     id: 'damage.classify',
     name: 'damage.classify',
     category: 'Perception',
-    provider: 'Gemini Vision Sensor',
+    provider: 'Nemotron Vision Sensor',
     version: 'v1.5.0',
     policyId: 'VISION-DAMAGE-03',
     description: 'Quantify infrastructure deformation, water depth cresting, and arterial blockage indices.',
@@ -96,7 +96,7 @@ const BASELINE_CAPABILITIES: CapabilityMeta[] = [
     id: 'hazard.detect',
     name: 'hazard.detect',
     category: 'Perception',
-    provider: 'Gemini Vision Sensor',
+    provider: 'Nemotron Vision Sensor',
     version: 'v1.5.0',
     policyId: 'VISION-HAZARD-02',
     description: 'Continuous anomaly threshold scanning on city grid telemetry sensors.',
@@ -399,7 +399,7 @@ export function WorkforceGrowth() {
         </div>
       </div>
 
-      {/* 2. Before / After Comparison Grid — Dynamic & Honest */}
+      {/* 2. Before / After Comparison Grid  :  Dynamic & Honest */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Specialist Agents */}
         <div
@@ -887,7 +887,7 @@ export function WorkforceGrowth() {
         </div>
       </div>
 
-      {/* 5. Cryptographic Provenance Audit Log — Connected to Real Events */}
+      {/* 5. Cryptographic Provenance Audit Log  :  Connected to Real Events */}
       <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -956,7 +956,7 @@ export function WorkforceGrowth() {
                       className={`w-28 text-[10px] font-bold ${
                         evt.source === 'GOVERNOS'
                           ? 'text-red-400'
-                          : evt.source === 'GEMINI'
+                          : evt.source === 'NEMOTRON'
                           ? 'text-cyan-400'
                           : evt.source === 'TRUST'
                           ? 'text-purple-400'
@@ -972,7 +972,7 @@ export function WorkforceGrowth() {
                   <div className="flex-1 sm:px-4 text-white font-sans text-xs min-w-0">
                     <span className="font-semibold text-white/95">{evt.title}</span>
                     <span className="text-[#8E8EA0] text-[11px] ml-2 font-mono">
-                      — {evt.detail}
+                       :  {evt.detail}
                     </span>
                   </div>
 

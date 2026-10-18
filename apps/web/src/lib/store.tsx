@@ -177,6 +177,12 @@ interface DemoContextType extends DemoState {
   openVisionModal: () => void;
   closeVisionModal: () => void;
   triggerLiveDenial: () => void;
+  /** Exposed for the 3-minute demo script to drive stage transitions. */
+  advanceToStage: (stage: DemoStage) => void;
+  demoGuideOpen: boolean;
+  openDemoGuide: () => void;
+  closeDemoGuide: () => void;
+  toggleDemoGuide: () => void;
 }
 
 
@@ -186,7 +192,7 @@ const INITIAL_INCIDENT: DemoState['incident'] = {
   description: 'Uncalibrated water surge detected near arterial bridge. Roadway passability uncertain for emergency vehicles.',
   severity: 'CRITICAL',
   location: 'Bellandur Spillway Arterial Bridge',
-  source: 'Gemini 1.5 Pro Multimodal Vision',
+  source: 'Nemotron Vision Ultra',
   timestamp: 'Just now',
 };
 
@@ -201,7 +207,7 @@ const INITIAL_AGENTS: Agent[] = [
   },
   {
     id: 'agent-vision',
-    name: 'Gemini Vision Sensor',
+    name: 'Nemotron Vision Sensor',
     role: 'Multimodal Perception',
     status: 'active',
     trustScore: 98,
@@ -309,15 +315,15 @@ const INITIAL_POLICIES: AuthorityPolicy[] = [
 
 export const SCENARIO_SEED_EVENTS: Record<ScenarioId, IncidentEvent[]> = {
   'bellandur-flood': [
-    { id: 'EVT-001', timestamp: '00:01.120', source: 'GEMINI', title: 'Multimodal Surge Anomaly Detected', detail: 'Gemini Vision sensor identified 0.85m water accumulation at Bellandur Pier 4. Confidence: 98.4%.', status: 'warning', elapsedMs: 1120 },
+    { id: 'EVT-001', timestamp: '00:01.120', source: 'NEMOTRON', title: 'Multimodal Surge Anomaly Detected', detail: 'Nemotron Vision sensor identified 0.85m water accumulation at Bellandur Pier 4. Confidence: 98.4%.', status: 'warning', elapsedMs: 1120 },
     { id: 'EVT-002', timestamp: '00:01.840', source: 'ORCHESTRATOR', title: 'Incident INC-2047 Registered', detail: 'Classified as CRITICAL flood risk. Initiating workforce capability scan.', status: 'info', elapsedMs: 1840 },
   ],
   'silkboard-gridlock': [
-    { id: 'EVT-001', timestamp: '00:01.200', source: 'GEMINI', title: '4-Way Arterial Gridlock Confirmed', detail: 'Silk Board Central Flyover Cam-04 detected full arterial deadlock. 380 vehicles stalled. Confidence: 99.3%.', status: 'warning', elapsedMs: 1200 },
+    { id: 'EVT-001', timestamp: '00:01.200', source: 'NEMOTRON', title: '4-Way Arterial Gridlock Confirmed', detail: 'Silk Board Central Flyover Cam-04 detected full arterial deadlock. 380 vehicles stalled. Confidence: 99.3%.', status: 'warning', elapsedMs: 1200 },
     { id: 'EVT-002', timestamp: '00:01.900', source: 'ORCHESTRATOR', title: 'Incident INC-2051 Registered', detail: 'Classified as HIGH severity traffic crisis. Cross-agency coordination required.', status: 'info', elapsedMs: 1900 },
   ],
   'hebbal-surge': [
-    { id: 'EVT-001', timestamp: '00:01.350', source: 'GEMINI', title: 'Stormwater Backflow Surge Detected', detail: 'Hebbal Expressway Cam-07 identified hydraulic surge at 54cm depth. Airport buses compromised. Confidence: 98.8%.', status: 'warning', elapsedMs: 1350 },
+    { id: 'EVT-001', timestamp: '00:01.350', source: 'NEMOTRON', title: 'Stormwater Backflow Surge Detected', detail: 'Hebbal Expressway Cam-07 identified hydraulic surge at 54cm depth. Airport buses compromised. Confidence: 98.8%.', status: 'warning', elapsedMs: 1350 },
     { id: 'EVT-002', timestamp: '00:02.100', source: 'ORCHESTRATOR', title: 'Incident INC-2058 Registered', detail: 'Classified as CRITICAL flood risk. Sluice balancing protocol initiated.', status: 'info', elapsedMs: 2100 },
   ],
 };
@@ -341,9 +347,9 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     {
       id: 'EVT-001',
       timestamp: '00:01.120',
-      source: 'GEMINI',
+      source: 'NEMOTRON',
       title: 'Multimodal Surge Anomaly Detected',
-      detail: 'Gemini Vision sensor identified 0.85m water accumulation at Pier 4. Confidence: 98.4%.',
+      detail: 'Nemotron Vision sensor identified 0.85m water accumulation at Pier 4. Confidence: 98.4%.',
       status: 'warning',
       elapsedMs: 1120,
     },
@@ -365,6 +371,11 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
   const [visionModalOpen, setVisionModalOpen] = useState(false);
   const [liveDenialActive, setLiveDenialActive] = useState(false);
   const [isSseConnected, setIsSseConnected] = useState(false);
+  const [demoGuideOpen, setDemoGuideOpen] = useState(false);
+
+  const openDemoGuide = useCallback(() => setDemoGuideOpen(true), []);
+  const closeDemoGuide = useCallback(() => setDemoGuideOpen(false), []);
+  const toggleDemoGuide = useCallback(() => setDemoGuideOpen((prev) => !prev), []);
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -388,7 +399,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     switch (nextStage) {
       case 'incident_detected':
         addEvent({
-          source: 'GEMINI',
+          source: 'NEMOTRON',
           title: 'High-Resolution Flood Boundary Plotted',
           detail: 'Water crest rising at 4cm/min. Arterial transit lane 1 submerged.',
           status: 'warning',
@@ -565,14 +576,14 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
     investigating: 3500,
     capability_gap: 3000,
     evaluating: 3200,
-    evaluation_failed: 0,    // PAUSE — wait for Protocol Zero human auth
+    evaluation_failed: 0,    // PAUSE  :  wait for Protocol Zero human auth
     repairing: 3200,
     verified: 3800,
     joining_workforce: 4000,
-    resolved: 0,             // Mission complete — stay here
+    resolved: 0,             // Mission complete  :  stay here
   };
 
-  // Auto-play driver — uses per-stage dwell times
+  // Auto-play driver  :  uses per-stage dwell times
   useEffect(() => {
     if (!isAutoPlaying) {
       if (autoPlayTimerRef.current) {
@@ -584,7 +595,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
 
     const scheduleNext = (currentStage: DemoStage) => {
       const dwell = STAGE_DURATIONS[currentStage];
-      // dwell === 0 or undefined means human gate — stop auto-play
+      // dwell === 0 or undefined means human gate  :  stop auto-play
       if (dwell === 0 || dwell === undefined) {
         setIsAutoPlaying(false);
         return;
@@ -648,7 +659,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
       description: preset.description,
       severity: 'CRITICAL',
       location: preset.location,
-      source: 'Gemini Multimodal Vision Grid',
+      source: 'Nemotron Multimodal Vision Grid',
       timestamp: 'Just now',
     });
     setMetrics({
@@ -730,7 +741,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         description: preset.description,
         severity: 'CRITICAL',
         location: preset.location,
-        source: 'Gemini Multimodal Vision Grid',
+        source: 'Nemotron Multimodal Vision Grid',
         timestamp: 'Just now',
       });
       setEvents(SCENARIO_SEED_EVENTS[scenarioId] || []);
@@ -772,7 +783,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
             }
 
             let source: EventSourceType = 'ORCHESTRATOR';
-            if (eventType.includes('GEMINI') || eventType.includes('VISION')) source = 'GEMINI';
+            if (eventType.includes('NEMOTRON') || eventType.includes('VISION')) source = 'NEMOTRON';
             else if (eventType.includes('GOVERNOS') || eventType.includes('AUTHORITY') || eventType.includes('POLICY') || eventType.includes('REPAIR')) source = 'GOVERNOS';
             else if (eventType.includes('EVALUATION') || eventType.includes('TEST') || eventType.includes('VERIFIED') || eventType.includes('REGRESSION')) source = 'TRUST';
             else if (eventType.includes('WORKFORCE')) source = 'WORKFORCE';
@@ -832,7 +843,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         const eventTypes = [
           'CONNECTED',
           'INCIDENT_RECEIVED',
-          'GEMINI_UNDERSTANDING',
+          'NEMOTRON_UNDERSTANDING',
           'MULTIMODAL_INGEST',
           'CAPABILITY_DECOMPOSITION',
           'CAPABILITY_GAP',
@@ -913,6 +924,11 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         selectCandidate,
         repairAgent,
         triggerLiveDenial,
+        advanceToStage,
+        demoGuideOpen,
+        openDemoGuide,
+        closeDemoGuide,
+        toggleDemoGuide,
       }}
     >
       {children}

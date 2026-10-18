@@ -55,7 +55,7 @@ export function CapabilityGapModal() {
                 Hydraulic Clearance Estimation Required
               </div>
               <p className="text-xs text-[#8E8EA0] leading-relaxed">
-                Gemini Vision detected water depth exceeding transit limits at Pier 4. Current civic agents cannot compute dynamic vehicular clearance ratios under turbulent flow. A verified specialist agent must be ingested into the workforce mesh.
+                Nemotron Vision detected water depth exceeding transit limits at Pier 4. Current civic agents cannot compute dynamic vehicular clearance ratios under turbulent flow. A verified specialist agent must be ingested into the workforce mesh.
               </p>
             </div>
           </div>

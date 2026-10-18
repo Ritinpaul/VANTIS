@@ -53,12 +53,12 @@ const SECTOR_DIAGNOSTICS: Record<string, SectorDiagnosticData> = {
     badge: 'VISION ACTIVE',
     badgeColor: 'cyan',
     metrics: [
-      { label: 'Vision Model', value: 'Gemini Flash', color: 'cyan' },
+      { label: 'Vision Model', value: 'Nemotron-4 Mini', color: 'cyan' },
       { label: 'Obstruction', value: '3 Sedans Stuck', color: 'red' },
       { label: 'ORR Gate', value: 'DIVERTED', color: 'cyan' },
     ],
     resolvedMetrics: [
-      { label: 'Vision Model', value: 'Gemini Flash', color: 'cyan' },
+      { label: 'Vision Model', value: 'Nemotron-4 Mini', color: 'cyan' },
       { label: 'Obstruction', value: '0 Cleared', color: 'emerald' },
       { label: 'ORR Gate', value: 'NORMAL FLOW', color: 'emerald' },
     ],

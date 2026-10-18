@@ -21,8 +21,8 @@ import {
   LayersIcon,
 } from '@radix-ui/react-icons';
 
-// Custom Node for Gemini Vision
-function GeminiNode({ data }: any) {
+// Custom Node for Nemotron Vision
+function NemotronNode({ data }: any) {
   return (
     <div className="px-4 py-3 rounded-2xl bg-[#0E1119] border-2 border-indigo-500/80 shadow-lg shadow-indigo-500/20 min-w-[190px] font-sans">
       <Handle type="source" position={Position.Right} className="!bg-indigo-500 !w-2.5 !h-2.5" />
@@ -136,7 +136,7 @@ function PassageNode({ data }: any) {
 }
 
 const nodeTypes = {
-  gemini: GeminiNode,
+  nemotron: NemotronNode,
   orchestrator: OrchestratorNode,
   governos: GovernOSNode,
   dispatch: DispatchNode,
@@ -152,10 +152,10 @@ export function WorkforceGraph() {
   const nodes: Node[] = useMemo(() => {
     const list: Node[] = [
       {
-        id: 'gemini',
-        type: 'gemini',
+        id: 'nemotron',
+        type: 'nemotron',
         position: { x: 50, y: 140 },
-        data: { label: 'Gemini Vision Perception' },
+        data: { label: 'Nemotron Vision Perception' },
       },
       {
         id: 'orchestrator',
@@ -193,8 +193,8 @@ export function WorkforceGraph() {
   const edges: Edge[] = useMemo(() => {
     const list: Edge[] = [
       {
-        id: 'e-gemini-orch',
-        source: 'gemini',
+        id: 'e-nemotron-orch',
+        source: 'nemotron',
         target: 'orchestrator',
         animated: true,
         style: { stroke: '#6366F1', strokeWidth: 2 },

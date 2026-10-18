@@ -546,7 +546,7 @@ export function generateIncidentPDF(inputData: ReportData) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
   doc.setTextColor(colCyan[0], colCyan[1], colCyan[2]);
-  doc.text('GEMINI ACOUSTIC REASONING:', margin + 4, y + 5);
+  doc.text('NEMOTRON ACOUSTIC REASONING:', margin + 4, y + 5);
 
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(colWhite[0], colWhite[1], colWhite[2]);

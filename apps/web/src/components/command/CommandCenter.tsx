@@ -70,6 +70,8 @@ export function CommandCenter() {
     visionModalOpen,
     openVisionModal,
     closeVisionModal,
+    demoGuideOpen,
+    toggleDemoGuide,
   } = useDemo();
   const [selectedSectorId, setSelectedSectorId] = useState<string>('pier-4');
   const [sessionSeconds, setSessionSeconds] = useState(0);
@@ -232,6 +234,22 @@ export function CommandCenter() {
             <EyeOpenIcon className="w-3.5 h-3.5" />
             <span className="hidden xl:inline">Incident Cam & Dossier</span>
             <span className="xl:hidden">Live Cam</span>
+          </button>
+
+          {/* Quick 3-Min Walkthrough Tour Toggle */}
+          <button
+            type="button"
+            onClick={toggleDemoGuide}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 select-none ${
+              demoGuideOpen
+                ? 'bg-violet-500/25 border border-violet-400 text-violet-200 shadow-sm shadow-violet-950/40'
+                : 'bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-400 hover:text-violet-300'
+            }`}
+            title="Toggle 3-Minute Guided Mission Tour"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="hidden sm:inline">{demoGuideOpen ? 'Hide Tour' : '3-Min Tour'}</span>
+            <span className="sm:hidden">Tour</span>
           </button>
         </div>
 

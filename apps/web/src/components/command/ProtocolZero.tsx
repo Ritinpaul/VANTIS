@@ -10,7 +10,7 @@ interface ProtocolZeroProps {
 }
 
 /**
- * ProtocolZeroReasoningBar — Placed at the bottom of the System Reasoning panel.
+ * ProtocolZeroReasoningBar  :  Placed at the bottom of the System Reasoning panel.
  * Mimics the Aegis "PROTOCOL ZERO: AUTHORIZATION REQUIRED" countdown prompt.
  */
 export function ProtocolZeroReasoningBar({ onAuthorize, onDecline }: ProtocolZeroProps) {
@@ -143,7 +143,7 @@ export function ProtocolZeroReasoningBar({ onAuthorize, onDecline }: ProtocolZer
 }
 
 /**
- * ProtocolZeroInlineCard — Placed directly inside the active signal card in SectorQueue.
+ * ProtocolZeroInlineCard  :  Placed directly inside the active signal card in SectorQueue.
  * Shown when candidate needs high-risk authorization before deployment.
  */
 export function ProtocolZeroInlineCard({ onAuthorize, onDecline }: ProtocolZeroProps) {

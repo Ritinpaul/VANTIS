@@ -88,7 +88,7 @@ const CATEGORY_STYLES: Record<
 };
 
 const SOURCE_ICONS: Record<EventSource, React.ComponentType<{ className?: string }>> = {
-  GEMINI: TargetIcon,
+  NEMOTRON: TargetIcon,
   ORCHESTRATOR: CubeIcon,
   TRUST: CheckCircledIcon,
   GOVERNOS: ExclamationTriangleIcon,
@@ -245,7 +245,7 @@ export function IncidentTimeline() {
 
       let mappedSource: EventSource = 'ORCHESTRATOR';
       const type = (be.event_type || '').toUpperCase();
-      if (type.includes('GEMINI')) mappedSource = 'GEMINI';
+      if (type.includes('NEMOTRON')) mappedSource = 'NEMOTRON';
       else if (type.includes('GOVERNOS') || type.includes('AUTHORITY')) mappedSource = 'GOVERNOS';
       else if (type.includes('EVAL') || type.includes('TEST')) mappedSource = 'TRUST';
       else if (type.includes('WORKFORCE')) mappedSource = 'WORKFORCE';

@@ -309,11 +309,11 @@ export function IncidentReportModal({ isOpen, onClose }: IncidentReportModalProp
                 </div>
                 <div className="space-y-2">
                   {[
-                    { id: 'VANTIS-COORD-01', role: 'Municipal Crisis Swarm Coordinator', core: 'Gemini 2.5 Flash', cap: 'topology.route, a2a.dispatch', status: 'SYNCHRONIZED' },
+                    { id: 'VANTIS-COORD-01', role: 'Municipal Crisis Swarm Coordinator', core: 'Nemotron-4 Mini', cap: 'topology.route, a2a.dispatch', status: 'SYNCHRONIZED' },
                     { id: 'VANTIS-TRIAGE-001', role: 'Sensor Fusion & Anomaly Triage', core: 'Deterministic + ML', cap: 'telemetry.filter, surge.detect', status: 'SYNCHRONIZED' },
                     { id: 'VANTIS-GOV-002', role: 'GovernOS Sentinel Policy Gate', core: 'Sandboxed Kernel', cap: 'governance.audit, hitl.enforce', status: 'ACTIVE' },
-                    { id: 'VANTIS-CIT-014', role: 'Citizen Ingestion & SOS Beacon Hub', core: 'Gemini Multimodal', cap: 'citizen_flare.intake, sms.verify', status: 'SYNCHRONIZED' },
-                    { id: 'VANTIS-SPEC-005', role: activeScenario === 'silkboard-gridlock' ? 'Traffic Swarm Coordinator' : activeScenario === 'hebbal-surge' ? 'Basin Vent Optimizer' : 'Passage Assessment Specialist', core: 'Gemini 2.5 Flash', cap: activeScenario === 'silkboard-gridlock' ? 'traffic_intercept.rebalance' : activeScenario === 'hebbal-surge' ? 'sluice_pressure.vent' : 'flood_passability.calc', status: 'EXPANDED (+1)' },
+                    { id: 'VANTIS-CIT-014', role: 'Citizen Ingestion & SOS Beacon Hub', core: 'Nemotron Multimodal', cap: 'citizen_flare.intake, sms.verify', status: 'SYNCHRONIZED' },
+                    { id: 'VANTIS-SPEC-005', role: activeScenario === 'silkboard-gridlock' ? 'Traffic Swarm Coordinator' : activeScenario === 'hebbal-surge' ? 'Basin Vent Optimizer' : 'Passage Assessment Specialist', core: 'Nemotron-4 Mini', cap: activeScenario === 'silkboard-gridlock' ? 'traffic_intercept.rebalance' : activeScenario === 'hebbal-surge' ? 'sluice_pressure.vent' : 'flood_passability.calc', status: 'EXPANDED (+1)' },
                   ].map((ag, i) => (
                     <div key={i} className="p-3 rounded-lg bg-[#141722] border border-white/5 flex items-center justify-between text-[11px]">
                       <div>

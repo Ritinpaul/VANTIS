@@ -174,7 +174,7 @@ export function EvaluationPanel() {
       {/* All 7 Test Cards */}
       <div className="space-y-3">
         <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
-          Verification Test Matrix (T01 — T07)
+          Verification Test Matrix (T01 - T07)
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
